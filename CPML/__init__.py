@@ -53,38 +53,53 @@ generate a layer to hold information on network
 @param: vals is whether the user wishes to manually set the weights
 """
 class Layer:
-    def __init__(self,nodes_in,nodes_out,vals=None):
+    def __init__(self,nodes_in,nodes_out,vals=None,activ=None):
         if type(vals)==type(None):
             self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
         else:
             self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
         self.vals=vals
         self.bias=None
+        self.activation_func=activ
+        if type(activ)==type(None):
+            self.activation_func=self.activation_
     def __mul__(self,other):
         return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
     def setBias(self,bias):
         self.bias=bias
+    def activation_(self,inputs):
+        #activation function
+        self.z = np.dot(self.matrix,inputs)
+        if type(self.bias)!=type(None):
+            self.z += self.bias
+        self.a = 1/(1 + np.exp(-self.z))
+        return self.a
+
 """
 The network that combines all the layers together
 @param: num_out is how many nodes in the output layer
 """
 class Network:
-    def __init__(self,num_out): 
+    def __init__(self,num_out):
         self.network=[]
         self.num_out=num_out
-    def add_layer(self,nodes,vals=None):
-        layer=Layer(nodes,self.num_out,vals=vals) #default x by y
+    def add_layer(self,nodes,vals=None,act=None):
+        layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
         if len(self.network)>0: #there are previous nodes
-            layer=self.network[-1][0]
-            bias=self.network[-1][1]
+            layer=self.network[-1]
+            print("--",layer.matrix.shape)
+            bias=self.network[-1].bias
+            activation=self.network[-1].activation_func
             num=layer.getShape()
             val=layer.vals
-            layer=Layer(num[0],nodes,vals=val)
+            layer=Layer(num[0],nodes,vals=val,activ=act)
             layer.setBias(bias)
+            layer.activation_func=activation
+            print("--",layer.matrix.shape)
             self.network[-1]=layer #correct output of matrices before
-            layer=Layer(nodes,self.num_out,vals=vals) #generate layer with correct matrices
+            layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
         self.network.append(layer) #add the layer to the network
     def add_bias(self,vals=None):
         assert len(self.network)>0, "Network is empty. Add layers"
@@ -95,12 +110,13 @@ class Network:
     def forward(self,inp):
         assert len(self.network)>0, "Network is empty. Add layers"
         x=inp * self.network[0].matrix
-        
         sub=self.network
         for layer in sub:
-            x=np.dot(x,layer.matrix) #perform multiplication
+            print(x.shape,layer.matrix.transpose().shape)
+            x=np.dot(x,layer.matrix.transpose()) #perform multiplication
             if type(layer.bias)!=type(None):
                 x += layer.bias #add the biases
+            x=layer.activation_func(x)
         #a=[np.sum(i) for i in x.transpose()] #get output
         return x
     def show(self):
@@ -122,18 +138,20 @@ class Network:
                 if (preds==target)[0]:
                     correct+=1
                 error=preds-target
-                sumError+=np.sum(error)
-                # Calculate the slope: slope
-                slope = 2 * input_data * error
-                # Update the weights: weights_updated
-                for z in range(len(self.network)):
-                    self.network[z].matrix = self.network[z].matrix - learning_rate * slope
-                    # Get updated predictions: preds_updated
-                    preds_updated = activation(self.forward(input_data))
-                    # Calculate updated error: error_updated
-                    error_updated += np.sum(preds_updated - target)
+                delta_w, delta_b = self.backpropogate(input_data, y_bat)
+
             print("epoch",i+1,"Loss:",error_updated,"Accuracy:",(correct/len(y_data))*100,"%")
-            
 
-
-
+        def backpropogate(self, X, y):
+            delta = list() #Empty list to store derivatives
+            delta_w = [0 for _ in range(len(self.network))] #stores weight updates
+            delta_b = [0 for _ in range(len(self.network))] #stores bias updates
+            error_o = (self.layers[-1].z - y.T) #Calculate the the error at output layer.
+            for i in reversed(range(len(self.network) - 1)):
+                error_i = activation(self.forward(input_data)) # mutliply error with weights transpose to get gradients
+                delta_w[i+1] = error_o.dot(self.network[i].matrix.a.T)/len(y) # store gradient for weights
+                delta_b[i+1] = np.sum(error_o, axis=1, keepdims=True)/len(y) # store gradients for biases
+                error_o = error_i # now make assign the previous layers error as current error and repeat the process.
+            delta_w[0] = error_o.dot(X) # gradients for last layer
+            delta_b[0] = np.sum(error_o, axis=1, keepdims=True)/len(y)
+            return (delta_w, delta_b)
