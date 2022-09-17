@@ -94,24 +94,24 @@ class Network:
         sumError=0
         for i in range(epochs):
             correct=0
+            error_updated=0
             for j in range(len(inputData)):
                 #GET CURRENT DATA
                 input_data=inputData[j]
                 target=y_data[j]
                 #get prediction
                 preds=activation(self.forward(input_data))
-                if preds==target: correct+=1
+                if (preds==target)[0]:
+                    correct+=1
                 error=preds-target
                 sumError+=np.sum(error)
                 # Calculate the slope: slope
                 slope = 2 * input_data * error
-                error_updated=0
                 # Update the weights: weights_updated
                 for z in range(len(self.network)):
                     self.network[z].matrix = self.network[z].matrix - learning_rate * slope
                     # Get updated predictions: preds_updated
                     preds_updated = activation(self.forward(input_data))
-
                     # Calculate updated error: error_updated
                     error_updated += np.sum(preds_updated - target)
             print("epoch",i+1,"Loss:",error_updated,"Accuracy:",(correct/len(y_data))*100,"%")
