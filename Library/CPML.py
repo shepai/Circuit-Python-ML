@@ -18,15 +18,22 @@ generate a normal distribution randomized
 @param: StdDev is the standard deviation of the normal
 @param: size is the shape of the matrix
 """
-def normal(Mean=0,StdDev=0.5,size=[5]):
+def normal(mean=0,std=0.5,size=[5]):
+    num=1
+    for i in size:
+        num*=i
     ar=np.zeros(size)
-    shape=ar.shape
     ar=ar.flatten() #generate numpy
-    for i in range(len(ar)): #generate random values
-        X=random.randint(0,10)-Mean
-        f_X=(1/maths.sqrt(2*maths.pi*StdDev**2))*maths.exp(-1*(X-Mean)**2/(2*StdDev**2))
-        ar[i]=f_X #set random value
-    return ar.reshape(shape)
+    secondary=np.zeros(num*10)
+    for i in range(num*10):
+        X=maths.sqrt(abs(-2 * maths.log(i+1/num))) * maths.cos(2*maths.pi * i+1/num)
+        #Y=maths.sqrt(abs(-2 * maths.log(i+1/num))) * maths.sin(2*maths.pi * i+1/num)
+        X_ = mean + std * X
+        #Y_ = mean + std * Y
+        secondary[i]=X_
+    for i in range(num): #select only from the random variables
+        ar[i]=secondary[random.randint(0,num*10 -1)]
+    return ar.reshape(size)
 
 """
 generate a layer to hold information on network
