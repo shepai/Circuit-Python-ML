@@ -10,6 +10,7 @@ The library is called in using the imports:
 from CPML import *
 ```
 
+### Gaussian randomized matrices
 We can then proceed to use its features such as a normal distribution creation of an array. In standard Python this is done with the following:
 ```
 import numpy as np
@@ -26,6 +27,35 @@ The ulab library that provides numpy does not have this feature. You can call in
 array([[1.29068, 0.517823],
        [0.987146, 1.1901]], dtype=float32)
 ```
+
+### Creating a networks
+When creating an ANN we use create it as an object and add the number of output nodes that the network will have.
+
+```
+from CPML import *
+
+myNet=Network(2) #this network has 2 outputs
+```
+Following on from that, we can add layers and biases, with the specified number of nodes in each.
+
+```
+myNet.add_layer(5)
+myNet.add_bias()
+myNet.add_layer(2)
+myNet.add_layer(4)
+myNet.add_bias()
+myNet.show() #display the network
+```
+The network will automatically generate the weights and biases unless we specify otherwise using the 'val' parameter. This parameter takes in a numpy array of the specified size. It does not need to be the same matrix shape, but does need to contain the same amount of elements.
+
+```
+myNet=Network(2) #this network has 2 outputs
+myNet.add_layer(2,val=np.array([1,0,1,0])) #4 weights as the inputs joining to the next layer
+myNet.add_bias(val=np.array([-1,-1]))
+```
+The best way to understand this is checking out the examples folder. Here you can find logic gate networks for AND and OR which shows you the network predicting the correct numbers.
+
+
 
 
 ## Circuit Python neural networks
