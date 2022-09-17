@@ -36,6 +36,17 @@ def normal(mean=0,std=0.5,size=[5]):
     return ar.reshape(size)
 
 """
+get the mean squared error
+@param: y the truth data
+@param: y_pred the model predictions
+"""
+def MSE(y,y_pred):
+    s=y - y_pred
+    d=s**2
+    mse = np.mean(d)
+    return mse
+
+"""
 generate a layer to hold information on network
 @param: nodes_in is the number of inputs to this layer
 @param: nodes_out is the number of nodes in the next layer
@@ -122,10 +133,7 @@ class Network:
                     # Calculate updated error: error_updated
                     error_updated += np.sum(preds_updated - target)
             print("epoch",i+1,"Loss:",error_updated,"Accuracy:",(correct/len(y_data))*100,"%")
-def MSE(y,y_pred):
-    s=y - y_pred
-    d=s**2
-    mse = np.mean(d)
-    return mse
+            
+
 
 
