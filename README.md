@@ -26,8 +26,5 @@ array([[1.29068, 0.517823],
        [0.987146, 1.1901]], dtype=float32)
 ```
 
-```
->>>
-```
 
 ## Circuit Python neural networks
