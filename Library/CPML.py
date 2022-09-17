@@ -2,6 +2,10 @@
 Circuit Python machine learning tool kit
 
 This library combines and provides functionality relevant to making neural networks on devices.
+
+Library by Dexter R Shepherd
+University of Sussex PhD student
+
 """
 
 import ulab.numpy as np
@@ -26,11 +30,12 @@ def normal(Mean=0,StdDev=0.5,size=[5]):
 
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None):
-        self.vals=vals
+        print(vals)
         if vals!=None:
             self.matrix=vals.reshape((nodes_in,nodes_out)) #generate random weights
         else:
             self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
+        self.vals=vals
     def __mul__(self,other):
         return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
