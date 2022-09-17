@@ -70,11 +70,10 @@ class Layer:
     def setBias(self,bias):
         self.bias=bias
     def activation_(self,inputs):
-        #activation function
-        self.z = np.dot(self.matrix,inputs)
-        if type(self.bias)!=type(None):
-            self.z += self.bias
+        #activation functions
+        self.z=inputs
         self.a = 1/(1 + np.exp(-self.z))
+        assert self.a.shape==inputs.shape,"Shape mismatch"
         return self.a
 
 """
@@ -89,15 +88,12 @@ class Network:
         layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
         if len(self.network)>0: #there are previous nodes
             layer=self.network[-1]
-            print("--",layer.matrix.shape)
             bias=self.network[-1].bias
-            activation=self.network[-1].activation_func
+            activation=layer.activation_func
             num=layer.getShape()
             val=layer.vals
-            layer=Layer(num[0],nodes,vals=val,activ=act)
+            layer=Layer(num[0],nodes,vals=val,activ=activation)
             layer.setBias(bias)
-            layer.activation_func=activation
-            print("--",layer.matrix.shape)
             self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
         self.network.append(layer) #add the layer to the network
@@ -108,16 +104,22 @@ class Network:
             vals=normal(size=(size,1))
         self.network[-1].setBias(vals) #set the bias in the current end layer
     def forward(self,inp):
+        #input layer
         assert len(self.network)>0, "Network is empty. Add layers"
         x=inp * self.network[0].matrix
-        sub=self.network
+        sub=self.network[1:-1]
+        #hidden layers
         for layer in sub:
-            print(x.shape,layer.matrix.transpose().shape)
-            x=np.dot(x,layer.matrix.transpose()) #perform multiplication
+            x=np.dot(x,layer.matrix) #perform multiplication
             if type(layer.bias)!=type(None):
                 x += layer.bias #add the biases
             x=layer.activation_func(x)
-        #a=[np.sum(i) for i in x.transpose()] #get output
+        #output layer
+        layer=self.network[-1]
+        x=np.dot(x,layer.matrix) #perform multiplication
+        if type(layer.bias)!=type(None):
+            x += layer.bias #add the biases
+        x=layer.activation_func(x)
         return x
     def show(self):
         #show all the network layers and biases
