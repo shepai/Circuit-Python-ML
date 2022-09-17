@@ -9,8 +9,8 @@ def activation(nump):
     
 #create neural network
 net=Network(2)
-net.add_layer(2,vals=np.array([0,0,0,0]))
-#net.add_bias(vals=np.array([1,1]))
+net.add_layer(2)
+net.add_layer(5)
 net.show()
 
 #set up logic gate data and expected outcome
