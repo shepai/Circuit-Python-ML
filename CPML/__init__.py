@@ -63,6 +63,8 @@ class Layer:
         self.activation_func=activ
         if type(activ)==type(None):
             self.activation_func=self.activation_
+        self.a = 0 # defines the output of the layer after running through activation
+        self.z = 0 # defines the input of layer to the activation function
     def __mul__(self,other):
         return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
@@ -73,8 +75,9 @@ class Layer:
         #activation functions
         self.z=inputs
         self.a = 1/(1 + np.exp(-self.z))
-        assert self.a.shape==inputs.shape,"Shape mismatch"
         return self.a
+    def activation_grad(self):
+        return self.a * (1 - self.a)
 
 """
 The network that combines all the layers together
@@ -125,35 +128,45 @@ class Network:
         #show all the network layers and biases
         for i in range(len(self.network)):
             print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
-    def train(self,inputData,y_data,epochs,activation,learning_rate):
+    def update_weights_bias(self, delta_w, delta_b, lr):
+        #print(self.layers[0].bias.shape)
+        for i in range(len(self.network)):
+            layer = self.network[i]
+            print(layer.matrix.shape, (lr*delta_w[i]).shape)
+            layer.matrix = layer.matrix - (lr*delta_w[i])
+            if type(layer.bias) != type(None):
+                layer.bias = layer.bias - (lr*delta_b[i])
+    def backpropogate(self, X, y,targets):
+        #backpropogation algorithm
+        delta = list()
+        delta_w = [0 for _ in range(len(self.network))]
+        delta_b = [0 for _ in range(len(self.network))]
+        error_o = (targets - y)
+        for i in reversed(range(len(self.network) - 1)):
+            error_i = np.dot(self.network[i+1].matrix,error_o) * self.network[i].activation_grad()
+            delta_w[i+1] = (error_o * np.array([self.network[i].a]))/len(y)
+            delta_b[i+1] = np.sum(error_o, axis=1)/len(y)
+            error_o = error_i
+        delta_w[0] = np.dot(error_o,X)
+        delta_b[0] = np.sum(error_o, axis=1)/len(y)
+        return (delta_w, delta_b)
+    def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
         sumError=0
         for i in range(epochs):
             correct=0
             error_updated=0
+            err=np.zeros(len(inputData))
             for j in range(len(inputData)):
                 #GET CURRENT DATA
                 input_data=inputData[j]
                 target=y_data[j]
                 #get prediction
-                preds=activation(self.forward(input_data))
+                preds=self.forward(input_data)
+                err[j]=preds
                 if (preds==target)[0]:
                     correct+=1
-                error=preds-target
-                delta_w, delta_b = self.backpropogate(input_data, y_bat)
+                delta_w, delta_b = self.backpropogate(input_data, preds, target)
+                self.update_weights_bias(delta_w, delta_b, learning_rate)
 
             print("epoch",i+1,"Loss:",error_updated,"Accuracy:",(correct/len(y_data))*100,"%")
-
-        def backpropogate(self, X, y):
-            delta = list() #Empty list to store derivatives
-            delta_w = [0 for _ in range(len(self.network))] #stores weight updates
-            delta_b = [0 for _ in range(len(self.network))] #stores bias updates
-            error_o = (self.layers[-1].z - y.T) #Calculate the the error at output layer.
-            for i in reversed(range(len(self.network) - 1)):
-                error_i = activation(self.forward(input_data)) # mutliply error with weights transpose to get gradients
-                delta_w[i+1] = error_o.dot(self.network[i].matrix.a.T)/len(y) # store gradient for weights
-                delta_b[i+1] = np.sum(error_o, axis=1, keepdims=True)/len(y) # store gradients for biases
-                error_o = error_i # now make assign the previous layers error as current error and repeat the process.
-            delta_w[0] = error_o.dot(X) # gradients for last layer
-            delta_b[0] = np.sum(error_o, axis=1, keepdims=True)/len(y)
-            return (delta_w, delta_b)
