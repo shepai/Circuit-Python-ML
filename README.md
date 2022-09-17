@@ -55,7 +55,23 @@ myNet.add_bias(val=np.array([-1,-1]))
 ```
 The best way to understand this is checking out the examples folder. Here you can find logic gate networks for AND and OR which shows you the network predicting the correct numbers.
 
+### Activation functions
 
+The layers have an inbuilt default activation function, however you can specify your own as a parameter. For the AND gate example we can ignore two of the weights using .transpose()[0] and gather the inputs from the input nodes. If the sum of both these values is >=0 then the neuron is activated, otherwise the neuron is not. The 1 and 0 represent the true and false within the output of the logic gate.
 
-
-## Circuit Python neural networks
+```
+def activation(nump):
+    #activation function for the and gate
+    s=np.sum(nump.transpose()[0])
+    if s>=0:
+        return np.array([1])
+    return np.array([0])
+```
+This activation function can be set into the layer. If you want to use the same activation function for all your layers you will have to specify it in each add_layer parameter. 
+```
+#create the network
+net=Network(2)
+net.add_layer(2,vals=np.array([1,0,1,0]),act=activation)
+net.add_bias(vals=np.array([-1,-1]))
+net.show()
+```
