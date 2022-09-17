@@ -26,4 +26,17 @@ def normal(Mean=0,StdDev=0.5,size=[5]):
 
 class Layer:
     def __init__(self,nodes_in,nodes_out):
-        self.matrix=
+        self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
+    def __mul__(self,other):
+        return np.dot(self.matrix,other) #multiply the matrices together
+    def getShape(self): #return the shape of the matrix
+        return self.matrix.shape
+class network:
+    def __init__(self):
+        self.network=[]
+    def add_layer(self,nodes):
+        layer=None
+        if len(self.network)>0: #there are previous nodes
+            num=self.network[-1].shape[1]
+            layer=Layer(num,nodes) #generate layer with correct matrices
+        self.network.append(layer) #add the layer to the network
