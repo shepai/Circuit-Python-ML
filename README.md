@@ -20,7 +20,8 @@ np.random.normal(mu,std,(5,5))
 The ulab library that provides numpy does not have this feature. You can call in the normal distribution using the following feature, where mean, std are specified and x and y are your matrix shapes.
 
 ```
->>> array = normal(0,1,size=(2,2))
+>>> import CPML as cp
+>>> array = cp.normal(0,1,size=(2,2))
 >>> array
 array([[1.29068, 0.517823],
        [0.987146, 1.1901]], dtype=float32)
