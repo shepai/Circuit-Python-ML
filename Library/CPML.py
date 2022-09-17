@@ -28,6 +28,12 @@ def normal(Mean=0,StdDev=0.5,size=[5]):
         ar[i]=f_X #set random value
     return ar.reshape(shape)
 
+"""
+generate a layer to hold information on network
+@param: nodes_in is the number of inputs to this layer
+@param: nodes_out is the number of nodes in the next layer
+@param: vals is whether the user wishes to manually set the weights
+"""
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None):
         if type(vals)==type(None):
@@ -35,12 +41,19 @@ class Layer:
         else:
             self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
         self.vals=vals
+        self.bias=None
     def __mul__(self,other):
         return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
+    def setBias(self,bias):
+        self.bias=bias
+"""
+The network that combines all the layers together
+@param: num_out is how many nodes in the output layer
+"""
 class Network:
-    def __init__(self,num_out):
+    def __init__(self,num_out): 
         self.network=[]
         self.num_out=num_out
     def add_layer(self,nodes,vals=None):
@@ -50,29 +63,37 @@ class Network:
             bias=self.network[-1][1]
             num=layer.getShape()
             val=layer.vals
-            self.network[-1]=[Layer(num[0],nodes,vals=val),bias] #correct output of matrices before
+            layer=Layer(num[0],nodes,vals=val)
+            layer.setBias(bias)
+            self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals) #generate layer with correct matrices
-        self.network.append([layer,None]) #add the layer to the network
+        self.network.append(layer) #add the layer to the network
     def add_bias(self,vals=None):
         assert len(self.network)>0, "Network is empty. Add layers"
-        size=self.network[-1][0].getShape()[0] #get the end sizing to add on
+        size=self.network[-1].getShape() #get the end sizing to add on
         if type(vals)==type(None):
             vals=normal(size=(size,1))
-        self.network[-1]=[self.network[-1][0],vals]
+        self.network[-1].setBias(vals) #set the bias in the current end layer
     def forward(self,inp):
         assert len(self.network)>0, "Network is empty. Add layers"
-        x=inp * self.network[0][0].matrix
+        x=inp * self.network[0].matrix
         
         sub=self.network
         for layer in sub:
-            x=np.dot(x,layer[0].matrix)
-            if type(layer[1])!=type(None):
-                x += layer[1] #add the biases
+            x=np.dot(x,layer.matrix) #perform multiplication
+            if type(layer.bias)!=type(None):
+                x += layer.bias #add the biases
         #a=[np.sum(i) for i in x.transpose()] #get output
         return x
     def show(self):
+        #show all the network layers and biases
         for i in range(len(self.network)):
-            print("Layer",i+1,", nodes:",self.network[i][0].getShape(),", biases:",self.network[i][1])
+            print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
         
+def MSE(y,y_pred):
+    s=y - y_pred
+    d=np.square(s)
+    mse = d.mean()
+    return mse
 
 
