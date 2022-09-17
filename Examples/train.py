@@ -5,7 +5,7 @@ import ulab.numpy as np
 net=Network(2)
 net.add_layer(2)
 net.add_layer(5)
-net.add_layer(2)
+net.add_layer(4)
 net.show()
 
 #set up logic gate data and expected outcome
