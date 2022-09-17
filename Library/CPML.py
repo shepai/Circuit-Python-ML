@@ -3,7 +3,7 @@ Circuit Python machine learning tool kit
 
 This library combines and provides functionality relevant to making neural networks on devices.
 
-Library by Dexter R Shepherd
+Library by Dexter R. Shepherd
 University of Sussex PhD student
 
 """
@@ -30,11 +30,10 @@ def normal(Mean=0,StdDev=0.5,size=[5]):
 
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None):
-        print(vals)
-        if vals!=None:
-            self.matrix=vals.reshape((nodes_in,nodes_out)) #generate random weights
-        else:
+        if type(vals)==type(None):
             self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
+        else:
+            self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
         self.vals=vals
     def __mul__(self,other):
         return np.dot(other,self.matrix) #multiply the matrices together
@@ -57,16 +56,23 @@ class Network:
     def add_bias(self,vals=None):
         assert len(self.network)>0, "Network is empty. Add layers"
         size=self.network[-1][0].getShape()[0] #get the end sizing to add on
-        if vals==None:
+        if type(vals)==type(None):
             vals=normal(size=(size,1))
         self.network[-1]=[self.network[-1][0],vals]
     def forward(self,inp):
         assert len(self.network)>0, "Network is empty. Add layers"
-        x=inp * self.network[0].matrix
-        sub=self.network[1:-1]
+        x=inp * self.network[0][0].matrix
+        
+        sub=self.network
         for layer in sub:
-            x = x * layer
+            x=np.dot(x,layer[0].matrix)
+            if type(layer[1])!=type(None):
+                x += layer[1] #add the biases
+        #a=[np.sum(i) for i in x.transpose()] #get output
         return x
+    def show(self):
+        for i in range(len(self.network)):
+            print("Layer",i+1,", nodes:",self.network[i][0].getShape(),", biases:",self.network[i][1])
         
 
 
