@@ -2,16 +2,16 @@ from CPML import *
 import ulab.numpy as np
 
 #create neural network
-net=Network(2)
+net=Network(1)
 net.add_layer(2)
 net.add_layer(7)
 net.add_layer(5)
-net.add_layer(2)
+net.add_layer(1)
 net.show()
 
 #set up logic gate data and expected outcome
 X_data=[np.array([[0],[0]]),np.array([[0],[1]]),np.array([[1],[0]]),np.array([[1],[1]])]
-y=np.array([[0],[0],[0],[1]])
+y=np.array([[0,0],[0,0],[0,0],[1,1]])
 
 print(net.forward(X_data[0]))
 
