@@ -67,7 +67,7 @@ def activation(nump):
         return np.array([1])
     return np.array([0])
 ```
-This activation function can be set into the layer. If you want to use the same activation function for all your layers you will have to specify it in each add_layer parameter. 
+This activation function can be set into the layer. If you want to use the same activation function for all your layers you will have to specify it in each add_layer parameter.
 ```
 #create the network
 net=Network(2)
@@ -75,3 +75,7 @@ net.add_layer(2,vals=np.array([1,0,1,0]),act=activation)
 net.add_bias(vals=np.array([-1,-1]))
 net.show()
 ```
+An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
+
+### Training
+It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backpropogation. 
