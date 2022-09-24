@@ -8,6 +8,11 @@ import torch.nn as nn
 from CPML_PC import *
 import numpy as np
 
+def reform(net,weights):
+    #does not yet support biases
+    for i,weight in enumerate(weights):
+        net.network[i].matrix=weight.detach().numpy()
+        
 X_data=np.random.rand(100,10,1)
 y_data=torch.tensor(np.random.randint(5,size=100))
 
@@ -48,7 +53,7 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
-    #net.reform_weights()
+    #reform(network,a) #try copy over incase a by-reference doesn't work
     if epoch%10==0: #sjow accuracy
         print("Epoch",epoch,"accuracy:",acc/len(X_data) *100,"loss:",l)
         print(np.sum(a[1].detach().numpy()))
