@@ -11,7 +11,7 @@ University of Sussex PhD student
 import numpy as np
 import random
 import math as maths
-
+import torch
 
 """
 generate a layer to hold information on network
@@ -41,7 +41,7 @@ class Layer:
     def activation_(self,inputs):
         #activation functions
         self.z=inputs
-        self.a = 1/(1 + np.exp(-self.z))
+        self.a = 1/(1 + torch.exp(-self.z))
         return self.a
     def activation_grad(self):
         return self.a * (1 - self.a)   
@@ -81,12 +81,12 @@ class Network:
         sub=self.network[1:-1]
         #hidden layers
         for i in range(len(sub)):
-            x=np.dot(x,self.network[i+1].matrix) #perform multiplication
+            x=torch.mm(x,self.network[i+1].matrix) #perform multiplication
             if type(self.network[i+1].bias)!=type(None):
                 x += self.network[-1].bias #add the biases
             x=self.network[i+1].activation_func(x)
         #output layer
-        x=np.dot(x,self.network[-1].matrix) #perform multiplication
+        x=torch.mm(x,self.network[-1].matrix) #perform multiplication
         if type(self.network[-1].bias)!=type(None):
             x += self.network[-1].bias #add the biases
         x=self.network[-1].activation_func(x)

@@ -1,120 +1,76 @@
 """
-Circuit Python machine learning tool kit for PC
+This code is to be run on the PC side,
 
-This library combines and provides functionality to copy what you are doing on the device
-
-Library by Dexter R. Shepherd
-University of Sussex PhD student
-
+It makes use of the neural network training
 """
-
+import torch
+import torch.nn as nn
+from CPML_PC import *
 import numpy as np
-import random
-import math as maths
+
+output_nodes=5
+
+def reform(net,weights):
+    #does not yet support biases
+    for i,weight in enumerate(weights):
+        net.network[i].matrix=weight.detach().numpy()
+
+X_data=torch.tensor(np.random.rand(100,10,1))
+y_data=torch.tensor(np.random.rand(100,output_nodes))
+print(y_data.shape)
 
 
-"""
-generate a layer to hold information on network
-@param: nodes_in is the number of inputs to this layer
-@param: nodes_out is the number of nodes in the next layer
-@param: vals is whether the user wishes to manually set the weights
-"""
-class Layer:
-    def __init__(self,nodes_in,nodes_out,vals=None,activ=None):
-        if type(vals)==type(None):
-            self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
-        else:
-            self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
-        self.vals=vals
-        self.bias=None
-        self.activation_func=activ
-        if type(activ)==type(None):
-            self.activation_func=self.activation_
-        self.a = 0 # defines the output of the layer after running through activation
-        self.z = 0 # defines the input of layer to the activation function
-    def __mul__(self,other):
-        return np.dot(other,self.matrix) #multiply the matrices together
-    def getShape(self): #return the shape of the matrix
-        return self.matrix.shape
-    def setBias(self,bias):
-        self.bias=bias
-    def activation_(self,inputs):
-        #activation functions
-        self.z=inputs
-        self.a = 1/(1 + np.exp(-self.z))
-        return self.a
-    def activation_grad(self):
-        return self.a * (1 - self.a)   
-        
-"""
-The network that combines all the layers together
-@param: num_out is how many nodes in the output layer
-"""
-class Network:
-    def __init__(self,num_out): 
-        self.network=[]
-        self.num_out=num_out
-    def add_layer(self,nodes,vals=None,act=None):
-        layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
-        if len(self.network)>0: #there are previous nodes
-            layer=self.network[-1]
-            bias=self.network[-1].bias
-            activation=layer.activation_func
-            num=layer.getShape()
-            val=layer.vals
-            layer=Layer(num[0],nodes,vals=val,activ=activation)
-            layer.setBias(bias)
-            self.network[-1]=layer #correct output of matrices before
-            layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
-        self.network.append(layer) #add the layer to the network
-    def add_bias(self,vals=None):
-        assert len(self.network)>0, "Network is empty. Add layers"
-        size=self.network[-1].getShape() #get the end sizing to add on
-        if type(vals)==type(None):
-            vals=normal(size=(size,1))
-        self.network[-1].setBias(vals) #set the bias in the current end layer
-    def forward(self,inp):
-        #input layer
-        assert len(self.network)>0, "Network is empty. Add layers"
-        x=inp * self.network[0].matrix
-        #x=self.network[0].activation_func(x)
-        sub=self.network[1:-1]
-        #hidden layers
-        for i in range(len(sub)):
-            x=np.dot(x,self.network[i+1].matrix) #perform multiplication
-            if type(self.network[i+1].bias)!=type(None):
-                x += self.network[-1].bias #add the biases
-            x=self.network[i+1].activation_func(x)
-        #output layer
-        x=np.dot(x,self.network[-1].matrix) #perform multiplication
-        if type(self.network[-1].bias)!=type(None):
-            x += self.network[-1].bias #add the biases
-        x=self.network[-1].activation_func(x)
-        return x
-    def show(self):
-        #show all the network layers and biases
-        for i in range(len(self.network)):
-            print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
-    def get_weights(self):
-        indicies=[0]
-        s=0
-        for i,layer in enumerate(self.network): #perform calculations
-            indicies.append(len(layer.matrix.flatten())+indicies[-1]) #add each index
-            indicies.append(len(layer.bias.flatten())+indicies[-1]) #add each index
-            s+=len(layer.matrix.flatten())+layer.bias.flatten()
-        wb=np.zeros((s))
-        for i,layer in enumerate(self.network):
-            #stretch out the array
-            wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
-            wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
-        return wb, indicies
-    def reform_weights(self,wb,indicies):
-        for i in range(0,indicies,3):
-            #stretch out the array
-            wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
-            wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
-    def parameters(self):
-        return [self.network[i].matrix for i in range(len(self.network))]
+network=Network(output_nodes)
+network.add_layer(10)
+network.add_layer(6)
 
+#train network
+epochs=100
+lr=0.05
 
+criterion = nn.MSELoss()
 
+a=network.parameters()
+for i in range(len(network.network)): #convert to tensors
+    network.network[i].matrix=nn.Parameter(torch.tensor(network.network[i].matrix))
+
+a=[network.network[i].matrix for i in range(len(network.network))]
+
+optimizer = torch.optim.Adam(a, lr=lr)  # Let's try a different optimizer!
+
+print(np.sum(a[1].detach().numpy()))
+for epoch in range(epochs):
+    acc=0
+    l=0
+    for dat,lab in zip(X_data,y_data):
+        #calculate loss
+        # Clear gradients
+        optimizer.zero_grad()
+        # Predict outputs
+        #pass through network
+        output=network.forward(dat)
+        output=np.sum(output, axis=0) #get nodes of output
+        y_pred=torch.sigmoid(torch.tensor(output))
+        #get best
+        #y_pred=np.argmax(output)
+        if torch.sum(y_pred)==torch.sum(lab):
+            acc+=1
+        #t1=y_pred.reshape(1,output_nodes).requires_grad_(True)
+        #t2=lab.reshape(1,output_nodes).requires_grad_(True)
+        #print(t1.shape,t2.shape)
+        # Calculate loss
+        loss = criterion(y_pred.requires_grad_(True),lab)
+        # Calculate gradients
+        loss.backward()
+        # Update weights
+        # Backward and optimize
+        optimizer.step()
+        optimizer.zero_grad()
+
+        l+=int(loss)
+
+    #reform(network,a) #try copy over incase a by-reference doesn't work
+    if epoch%10==0: #sjow accuracy
+        print("Epoch",epoch,"accuracy:",acc/len(X_data) *100,"loss:",l)
+        print(np.sum(a[1].detach().numpy()))
+print("End accuracy:",acc/len(X_data) *100)

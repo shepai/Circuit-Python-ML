@@ -15,7 +15,7 @@ def reform(net,weights):
     for i,weight in enumerate(weights):
         net.network[i].matrix=weight.detach().numpy()
         
-X_data=np.random.rand(100,10,1)
+X_data=torch.tensor(np.random.rand(100,10,1))
 y_data=torch.tensor(np.random.rand(100,output_nodes))
 print(y_data.shape)
 
@@ -29,8 +29,13 @@ epochs=100
 lr=0.05
 
 criterion = nn.MSELoss()
+
 a=network.parameters()
-a=[nn.Parameter(torch.tensor(a[i])) for i in range(len(a))]
+for i in range(len(network.network)): #convert to tensors
+    network.network[i].matrix=nn.Parameter(torch.tensor(network.network[i].matrix))
+
+a=[network.network[i].matrix for i in range(len(network.network))]
+
 optimizer = torch.optim.Adam(a, lr=lr)  # Let's try a different optimizer!
 
 print(np.sum(a[1].detach().numpy()))
@@ -44,17 +49,18 @@ for epoch in range(epochs):
         # Predict outputs 
         #pass through network
         output=network.forward(dat)
-        output=np.sum(output, axis=0) #get nodes of output
+        output=torch.sum(output, axis=0) #get nodes of output
         y_pred=torch.sigmoid(torch.tensor(output))
         #get best
         #y_pred=np.argmax(output)
         if torch.sum(y_pred)==torch.sum(lab):
             acc+=1
-        t1=y_pred.reshape(1,output_nodes).requires_grad_(True)
-        t2=lab.reshape(1,output_nodes).requires_grad_(True)
+        #t1=y_pred.reshape(1,output_nodes).requires_grad_(True)
+        #t2=lab.reshape(1,output_nodes).requires_grad_(True)
         #print(t1.shape,t2.shape)
-        # Calculate loss 
-        loss = criterion(t1,t2)
+        # Calculate loss
+        loss = criterion(y_pred.requires_grad_(True),lab)
+        #print(loss)
         # Calculate gradients 
         loss.backward()
         # Update weights 
