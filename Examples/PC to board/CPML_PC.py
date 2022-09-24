@@ -12,6 +12,7 @@ import numpy as np
 import random
 import math as maths
 import torch
+import torch.nn as nn
 
 """
 generate a layer to hold information on network
@@ -27,13 +28,12 @@ class Layer:
             self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
         self.vals=vals
         self.bias=None
+        self.matrix=nn.Parameter(torch.tensor(self.matrix,dtype=torch.float32)) #convert to tensor
         self.activation_func=activ
         if type(activ)==type(None):
             self.activation_func=self.activation_
         self.a = 0 # defines the output of the layer after running through activation
         self.z = 0 # defines the input of layer to the activation function
-    def __mul__(self,other):
-        return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
     def setBias(self,bias):

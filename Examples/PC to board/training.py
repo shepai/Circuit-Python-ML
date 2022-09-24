@@ -10,8 +10,8 @@ import numpy as np
 
 output_nodes=5
 
-X_data=torch.tensor(np.random.rand(100,10,1))
-y_data=torch.tensor(np.random.rand(100,output_nodes))
+X_data=torch.tensor(np.random.rand(100,10,1),dtype=torch.float32)
+y_data=torch.tensor(np.random.rand(100,output_nodes),dtype=torch.float32)
 print(y_data.shape)
 
 
@@ -26,8 +26,8 @@ lr=0.05
 criterion = nn.MSELoss()
 
 a=network.parameters()
-for i in range(len(network.network)): #convert to tensors
-    network.network[i].matrix=nn.Parameter(torch.tensor(network.network[i].matrix))
+#for i in range(len(network.network)): #convert to tensors
+#    network.network[i].matrix=nn.Parameter(network.network[i].matrix)
 
 a=[network.network[i].matrix for i in range(len(network.network))]
 
@@ -45,7 +45,7 @@ for epoch in range(epochs):
         #pass through network
         output=network.forward(dat)
         output=torch.sum(output, axis=0) #get nodes of output
-        y_pred=torch.sigmoid(torch.tensor(output))
+        y_pred=torch.sigmoid(output)
         #get best
         #y_pred=np.argmax(output)
         if torch.sum(y_pred)==torch.sum(lab):
