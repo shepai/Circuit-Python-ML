@@ -68,7 +68,7 @@ for epoch in range(epochs):
         optimizer.step()
         optimizer.zero_grad()
         
-        l+=int(loss)
+        l+=abs(loss.item())
         
     #reform(network,a) #try copy over incase a by-reference doesn't work
     if epoch%10==0: #sjow accuracy
