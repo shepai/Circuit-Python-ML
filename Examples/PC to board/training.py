@@ -10,11 +10,6 @@ import numpy as np
 
 output_nodes=5
 
-def reform(net,weights):
-    #does not yet support biases
-    for i,weight in enumerate(weights):
-        net.network[i].matrix=weight.detach().numpy()
-        
 X_data=torch.tensor(np.random.rand(100,10,1))
 y_data=torch.tensor(np.random.rand(100,output_nodes))
 print(y_data.shape)
@@ -67,7 +62,8 @@ for epoch in range(epochs):
         # Backward and optimize
         optimizer.step()
         optimizer.zero_grad()
-        
+        #for i in range(len(network.network)): #reset weights
+        #    network.network[i].matrix = a[i]
         l+=abs(loss.item())
         
     #reform(network,a) #try copy over incase a by-reference doesn't work
