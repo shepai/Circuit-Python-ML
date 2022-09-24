@@ -21,9 +21,10 @@ lr=0.05
 
 criterion = nn.MSELoss()
 a=network.parameters()
-b=[nn.Parameter(torch.tensor(a[i])) for i in range(len(a))]
-optimizer = torch.optim.SGD(b, lr=lr)  # Let's try a different optimizer!
-print(np.sum(b[1].detach().numpy()))
+a=[nn.Parameter(torch.tensor(a[i])) for i in range(len(a))]
+optimizer = torch.optim.SGD(a, lr=lr)  # Let's try a different optimizer!
+
+print(np.sum(a[1].detach().numpy()))
 for epoch in range(epochs):
     acc=0
     l=0
@@ -50,5 +51,5 @@ for epoch in range(epochs):
     #net.reform_weights()
     if epoch%10==0: #sjow accuracy
         print("Epoch",epoch,"accuracy:",acc/len(X_data) *100,"loss:",l)
-        print(np.sum(b[1].detach().numpy()))
+        print(np.sum(a[1].detach().numpy()))
 print("End accuracy:",acc/len(X_data) *100)
