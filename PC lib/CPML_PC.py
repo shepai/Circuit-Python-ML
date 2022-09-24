@@ -22,7 +22,7 @@ generate a layer to hold information on network
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None,activ=None):
         if type(vals)==type(None):
-            self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
+            self.matrix=np.random.normal(size=(nodes_in,nodes_out)) #generate random weights
         else:
             self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
         self.vals=vals
@@ -114,7 +114,12 @@ class Network:
             wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
             wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
     def parameters(self):
-        return [self.network[i].matrix for i in range(len(self.network))]
+        n=[]
+        for i,layer in enumerate(self.network): #perform calculations
+            n.append(self.network[i].matrix)
+            if self.network[i].bias!=None:
+                n.append(self.network[i].bias)
+        return n
 
 
 
