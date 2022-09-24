@@ -25,13 +25,13 @@ lr=0.05
 
 criterion = nn.MSELoss()
 
-a=network.parameters()
+
 #for i in range(len(network.network)): #convert to tensors
 #    network.network[i].matrix=nn.Parameter(network.network[i].matrix)
 
 a=[network.network[i].matrix for i in range(len(network.network))]
 
-optimizer = torch.optim.Adam(a, lr=lr)  # Let's try a different optimizer!
+optimizer = torch.optim.Adam(network.parameters(), lr=lr)  # Let's try a different optimizer!
 
 print(np.sum(a[1].detach().numpy()))
 for epoch in range(epochs):
