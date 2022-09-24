@@ -8,15 +8,19 @@ import torch.nn as nn
 from CPML_PC import *
 import numpy as np
 
+output_nodes=5
+
 def reform(net,weights):
     #does not yet support biases
     for i,weight in enumerate(weights):
         net.network[i].matrix=weight.detach().numpy()
         
 X_data=np.random.rand(100,10,1)
-y_data=torch.tensor(np.random.rand(100,5))
+y_data=torch.tensor(np.random.rand(100,output_nodes))
 print(y_data.shape)
-network=Network(5)
+
+
+network=Network(output_nodes)
 network.add_layer(10)
 network.add_layer(6)
 
@@ -46,9 +50,9 @@ for epoch in range(epochs):
         #y_pred=np.argmax(output)
         if torch.sum(y_pred)==torch.sum(lab):
             acc+=1
-        t1=torch.tensor(y_pred, requires_grad=True)
-        t2=torch.tensor(lab, requires_grad=True)
-        #print(t1.grad_fn,t2.grad_fn)
+        t1=y_pred.reshape(1,output_nodes).requires_grad_(True)
+        t2=lab.reshape(1,output_nodes).requires_grad_(True)
+        #print(t1.shape,t2.shape)
         # Calculate loss 
         loss = criterion(t1,t2)
         # Calculate gradients 
