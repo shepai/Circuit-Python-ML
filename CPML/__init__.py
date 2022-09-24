@@ -8,7 +8,7 @@ University of Sussex PhD student
 
 """
 
-import ulab.numpy as np
+import numpy as np
 import random
 import math as maths
 
@@ -87,6 +87,13 @@ class Network:
     def __init__(self,num_out): 
         self.network=[]
         self.num_out=num_out
+
+    """
+    Adds a layer to the network
+    @param: nodes
+    @param: vals
+    @param: act
+    """
     def add_layer(self,nodes,vals=None,act=None):
         layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
         if len(self.network)>0: #there are previous nodes
@@ -100,12 +107,20 @@ class Network:
             self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
         self.network.append(layer) #add the layer to the network
+    """
+    adds bias to the network
+    @param: vals
+    """
     def add_bias(self,vals=None):
         assert len(self.network)>0, "Network is empty. Add layers"
         size=self.network[-1].getShape() #get the end sizing to add on
         if type(vals)==type(None):
             vals=normal(size=(size,1))
         self.network[-1].setBias(vals) #set the bias in the current end layer
+    """
+    
+    @param: inp
+    """
     def forward(self,inp):
         #input layer
         assert len(self.network)>0, "Network is empty. Add layers"
@@ -124,10 +139,17 @@ class Network:
             x += self.network[-1].bias #add the biases
         x=self.network[-1].activation_func(x)
         return x
+    """
+    show all the network layers and biases
+    """
     def show(self):
-        #show all the network layers and biases
         for i in range(len(self.network)):
             print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
+    """
+    @param: delta_w
+    @param: delta_b
+    @param: lr
+    """
     def update_weights_bias(self, delta_w, delta_b, lr):
         #print(self.layers[0].bias.shape)
         print(delta_w[0].shape,delta_w[1].shape,delta_w[2].shape)
@@ -137,11 +159,20 @@ class Network:
             layer.matrix = layer.matrix - (lr*delta_w[i])
             if type(layer.bias) != type(None):
                 layer.bias = layer.bias - (lr*delta_b[i]) 
+    """
+    @param: X
+    @param: y
+    @param: targets
+    """
     def backpropogate(self, X, y,targets):
         #backpropogation algorithm
         delta = list()
         delta_w = [0 for _ in range(len(self.network))]
         delta_b = [0 for _ in range(len(self.network))]
+
+        print("-------------", delta_w)
+        print("-------------", delta_b)
+
         error_o = (targets - y)
         for i in reversed(range(len(self.network)-1)):
             error_i = np.dot(self.network[i+1].matrix,error_o) * self.network[i].activation_grad()
@@ -152,6 +183,13 @@ class Network:
         delta_w[0] = np.dot(error_o,X)
         delta_b[0] = np.sum(error_o, axis=1)/len(y)
         return (delta_w, delta_b)
+
+    """
+    @param: inputData
+    @param: y_data
+    @param: epochs
+    @param: learning_rate
+    """
     def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
         sumError=0
@@ -159,15 +197,24 @@ class Network:
             correct=0
             error_updated=0
             err=np.zeros(len(inputData))
+            print('error', '------------', err)
+            print('input_data', '--------', inputData)
+            print('y_data', '----------', y_data)
             for j in range(len(inputData)):
                 #GET CURRENT DATA
                 input_data=inputData[j]
                 target=y_data[j]
                 #get prediction
                 preds=self.forward(input_data)
+                print('target', '===========', target)
+                print('preds', '------------', preds)
+                print('err at j', err[j])
                 err[j]=preds
                 if (preds==target)[0]:
                     correct+=1
+                print('hahhaahahhaahahah', inputData )
+                print('hahahahahahahah', preds)
+                print('ahhahahaahahahahahaha', target)
                 delta_w, delta_b = self.backpropogate(input_data, preds, target)
                 self.update_weights_bias(delta_w, delta_b, learning_rate)
                 
