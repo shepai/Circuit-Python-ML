@@ -34,25 +34,33 @@ for epoch in range(epochs):
     acc=0
     l=0
     for dat,lab in zip(X_data,y_data):
+        #calculate loss
+        #print(torch.tensor(np.array([y_pred],dtype=np.float64), requires_grad=True).reshape(1,1),
+        #torch.tensor(np.array([lab],dtype=np.float64), requires_grad=True).reshape(1,1))
+        #print(torch.tensor(np.array([y_pred],dtype=np.float64), requires_grad=True).grad)
+        # Clear gradients 
+        optimizer.zero_grad()
+        # Predict outputs 
         #pass through network
         output=network.forward(dat)
         output=np.sum(output, axis=1) #get nodes of output
         #get best
         y_pred=np.argmax(output)
-        #calculate loss
-        #print(torch.tensor(np.array([y_pred],dtype=np.float64), requires_grad=True).reshape(1,1),
-        #torch.tensor(np.array([lab],dtype=np.float64), requires_grad=True).reshape(1,1))
-        #print(torch.tensor(np.array([y_pred],dtype=np.float64), requires_grad=True).grad)
         if y_pred==lab:
             acc+=1
         t1=torch.tensor(np.array([y_pred],dtype=np.float64), requires_grad=True).reshape(1,1)
         t2=torch.tensor(np.array([lab],dtype=np.float64)).reshape(1,1)
+        # Calculate loss 
         loss = criterion(t1,t2)
-        l+=int(loss)
-        # Backward and optimize
+        # Calculate gradients 
         loss.backward()
+        # Update weights 
+        # Backward and optimize
         optimizer.step()
         optimizer.zero_grad()
+        
+        l+=int(loss)
+        
     #reform(network,a) #try copy over incase a by-reference doesn't work
     if epoch%10==0: #sjow accuracy
         print("Epoch",epoch,"accuracy:",acc/len(X_data) *100,"loss:",l)
