@@ -19,8 +19,8 @@ for i in range(len(y_data)):
     y_data[i][random.randint(0,output_nodes-1)]=1
     
 #save the data
-pd.DataFrame(X_data.detach().numpy().flatten()).to_csv("x_data.csv")
-pd.DataFrame(y_data.detach().numpy().flatten()).to_csv("y_data.csv")
+pd.DataFrame(X_data.detach().numpy().flatten()).to_csv("x_data.csv", header=None, index=None)
+pd.DataFrame(y_data.detach().numpy().flatten()).to_csv("y_data.csv", header=None, index=None)
 
 
 network=Network(output_nodes)
@@ -78,3 +78,5 @@ for epoch in range(epochs):
 print("End accuracy:",acc/len(X_data) *100)
 
 network.save("file.csv") #save the model
+
+

@@ -141,6 +141,6 @@ class Network:
     def save(self,name,path=""):
         name=name.replace(".csv","")
         wb,ind=self.get_weights() #gather
-        pd.DataFrame(wb).to_csv(path+name+".csv")
-        pd.DataFrame(np.array(ind)).to_csv(path+"meta_"+name+".csv")
+        pd.DataFrame(wb).to_csv(path+name+".csv", header=None, index=None)
+        pd.DataFrame(np.array(ind)).to_csv(path+"meta_"+name+".csv", header=None, index=None)
 
