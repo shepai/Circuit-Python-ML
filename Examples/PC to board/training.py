@@ -27,7 +27,7 @@ network.add_layer(6)
 
 #train network
 epochs=500
-lr=0.1
+lr=0.01
 
 criterion = nn.MSELoss()
 
