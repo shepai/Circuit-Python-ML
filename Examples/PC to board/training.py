@@ -9,25 +9,25 @@ from CPML_PC import *
 import numpy as np
 import random
 
-output_nodes=5
+output_nodes=2
 
 X_data=torch.tensor(np.random.rand(50,10,1),dtype=torch.float32)
 y_data=torch.tensor(np.zeros((50,output_nodes)),dtype=torch.float32)
 
 #make classes
-for i in range(100):
-    y_data[random.randint(0,output_nodes-1)]=1
-    
-print(y_data.shape)
+for i in range(len(y_data)):
+    y_data[i][random.randint(0,output_nodes-1)]=1
+
+
 
 
 network=Network(output_nodes)
-network.add_layer(10)
-network.add_layer(6)
+network.add_layer(10,act=torch.sigmoid)
+network.add_layer(6,act=torch.sigmoid)
 
 #train network
 epochs=500
-lr=0.01
+lr=0.05
 
 criterion = nn.MSELoss()
 
@@ -50,7 +50,7 @@ for epoch in range(epochs):
         c=torch.argmax(y_pred)
         #get best
 
-        if (c)==(torch.sum(lab)):
+        if (c)==torch.argmax(lab):
             acc+=1
         # Calculate loss
         loss = criterion(y_pred.requires_grad_(True),lab)
@@ -72,4 +72,5 @@ for epoch in range(epochs):
     if epoch%100==0: #sjow accuracy
         print("Epoch",epoch,"accuracy:",acc/len(X_data) *100,"loss:",l)
         print(np.sum(network.network[1].matrix.detach().numpy()),)
+
 print("End accuracy:",acc/len(X_data) *100)
