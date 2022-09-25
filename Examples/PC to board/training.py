@@ -8,17 +8,19 @@ import torch.nn as nn
 from CPML_PC import *
 import numpy as np
 import random
+import pandas as pd 
 
 output_nodes=2
 
 X_data=torch.tensor(np.random.rand(50,10,1),dtype=torch.float32)
 y_data=torch.tensor(np.zeros((50,output_nodes)),dtype=torch.float32)
-
 #make classes
 for i in range(len(y_data)):
     y_data[i][random.randint(0,output_nodes-1)]=1
-
-
+    
+#save the data
+pd.DataFrame(X_data.detach().numpy().flatten()).to_csv("x_data.csv")
+pd.DataFrame(y_data.detach().numpy().flatten()).to_csv("y_data.csv")
 
 
 network=Network(output_nodes)
@@ -26,7 +28,7 @@ network.add_layer(10,act=torch.sigmoid)
 network.add_layer(6,act=torch.sigmoid)
 
 #train network
-epochs=500
+epochs=20
 lr=0.05
 
 criterion = nn.MSELoss()
@@ -74,3 +76,5 @@ for epoch in range(epochs):
         print(np.sum(network.network[1].matrix.detach().numpy()),)
 
 print("End accuracy:",acc/len(X_data) *100)
+
+network.save("file.csv") #save the model

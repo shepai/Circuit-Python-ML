@@ -13,6 +13,7 @@ import random
 import math as maths
 import torch
 import torch.nn as nn
+import pandas as pd 
 
 """
 generate a layer to hold information on network
@@ -33,11 +34,17 @@ class Layer:
         if type(activ)==type(None):
             self.activation_func=self.activation_
         self.a = 0 # defines the output of the layer after running through activation
-        self.z = 0 # defines the input of layer to the activation function
+        self.z = 0 # defines the input of layer to the activation function#
+        self.i=nodes_in
+        self.j=nodes_out
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
     def setBias(self,bias):
         self.bias=bias
+    def length(self):
+        s=0
+        if self.bias!=None: s+=len(self.bias.flatten())
+        return s+(self.i*self.j)
     def activation_(self,inputs):
         #activation functions
         self.z=inputs
@@ -54,6 +61,7 @@ class Network:
     def __init__(self,num_out): 
         self.network=[]
         self.num_out=num_out
+        self.net=[]
     def add_layer(self,nodes,vals=None,act=None):
         layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
         if len(self.network)>0: #there are previous nodes
@@ -96,23 +104,33 @@ class Network:
         for i in range(len(self.network)):
             print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
     def get_weights(self):
-        indicies=[0]
+        indicies=[0] #store encoded indices
+        ind=[0] #store active indicies
         s=0
+        si=0
+        for i in range(len(self.network)):
+            si+=self.network[i].length()
+        wb=np.zeros((si))
         for i,layer in enumerate(self.network): #perform calculations
-            indicies.append(len(layer.matrix.flatten())+indicies[-1]) #add each index
-            indicies.append(len(layer.bias.flatten())+indicies[-1]) #add each index
-            s+=len(layer.matrix.flatten())+layer.bias.flatten()
-        wb=np.zeros((s))
-        for i,layer in enumerate(self.network):
-            #stretch out the array
-            wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
-            wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
+            indicies.append(s+len(layer.matrix.detach().numpy().flatten())) #add each index
+            ind.append(s+len(layer.matrix.detach().numpy().flatten())) #add each index
+            #print(ind[i],ind[i+1],len(wb[ind[i]:ind[i+1]]))
+            wb[ind[i]:ind[i+1]]=layer.matrix.detach().numpy().flatten()
+            if type(layer.bias)!=type(None):
+                indicies.append(s+len(layer.bias.detach().numpy().flatten())) #add each index
+                ind.append(s+len(layer.bias.detach().numpy().flatten())) #add each index
+                wb[ind[i+1]:ind[i+2]]=layer.bias.detach().numpy().flatten()
+                s+=len(layer.bias.flatten())
+            else: indicies.append(-1) #none found
+            s+=len(layer.matrix.flatten())
+        #indicies.append(s)
         return wb, indicies
     def reform_weights(self,wb,indicies):
         for i in range(0,indicies,3):
             #stretch out the array
             wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
-            wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
+            if ind[i+1]!=-1:
+                wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
     def parameters(self):
         n=[]
         for i,layer in enumerate(self.network): #perform calculations
@@ -120,5 +138,9 @@ class Network:
             if self.network[i].bias!=None:
                 n.append(self.network[i].bias)
         return n
-
+    def save(self,name,path=""):
+        name=name.replace(".csv","")
+        wb,ind=self.get_weights() #gather
+        pd.DataFrame(wb).to_csv(path+name+".csv")
+        pd.DataFrame(np.array(ind)).to_csv(path+"meta_"+name+".csv")
 
