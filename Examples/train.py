@@ -2,11 +2,10 @@ from CPML import *
 import ulab.numpy as np
 
 #create neural network
-net=Network(1)
+net=Network(2)
 net.add_layer(2)
 net.add_layer(7)
 net.add_layer(5)
-net.add_layer(1)
 net.show()
 
 #set up logic gate data and expected outcome

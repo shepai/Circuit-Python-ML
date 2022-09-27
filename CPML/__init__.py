@@ -77,14 +77,14 @@ class Layer:
         self.a = 1/(1 + np.exp(-self.z))
         return self.a
     def activation_grad(self):
-        return self.a * (1 - self.a)   
-        
+        return self.a * (1 - self.a)
+
 """
 The network that combines all the layers together
 @param: num_out is how many nodes in the output layer
 """
 class Network:
-    def __init__(self,num_out): 
+    def __init__(self,num_out):
         self.network=[]
         self.num_out=num_out
     def add_layer(self,nodes,vals=None,act=None):
@@ -123,56 +123,37 @@ class Network:
         if type(self.network[-1].bias)!=type(None):
             x += self.network[-1].bias #add the biases
         x=self.network[-1].activation_func(x)
+        x=np.sum(x, axis=1)
         return x
     def show(self):
         #show all the network layers and biases
         for i in range(len(self.network)):
             print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
-    def update_weights_bias(self, delta_w, delta_b, lr):
-        #print(self.layers[0].bias.shape)
-        print(delta_w[0].shape,delta_w[1].shape,delta_w[2].shape)
-        for i in range(len(self.network)):
-            layer = self.network[i]
-            print(">>>",layer.matrix.shape, (lr*delta_w[i]).shape)
-            layer.matrix = layer.matrix - (lr*delta_w[i])
-            if type(layer.bias) != type(None):
-                layer.bias = layer.bias - (lr*delta_b[i]) 
-    def backpropogate(self, X, y,targets):
-        #backpropogation algorithm
-        delta = list()
-        delta_w = [0 for _ in range(len(self.network))]
-        delta_b = [0 for _ in range(len(self.network))]
-        error_o = (targets - y)
-        for i in reversed(range(len(self.network)-1)):
-            error_i = np.dot(self.network[i+1].matrix,error_o) * self.network[i].activation_grad()
-            print(i+1,len(self.network),self.network[i].matrix.shape,self.network[i].a)
-            delta_w[i+1] = (error_o * np.array([self.network[i].a.transpose()]))/len(y)
-            delta_b[i+1] = np.sum(error_o, axis=1)/len(y)
-            error_o = error_i
-        delta_w[0] = np.dot(error_o,X)
-        delta_b[0] = np.sum(error_o, axis=1)/len(y)
-        return (delta_w, delta_b)
+
     def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
         sumError=0
         for i in range(epochs):
+            preds=np.zeros(y_data.shape)
             correct=0
-            error_updated=0
-            err=np.zeros(len(inputData))
             for j in range(len(inputData)):
-                #GET CURRENT DATA
-                input_data=inputData[j]
-                target=y_data[j]
-                #get prediction
-                preds=self.forward(input_data)
-                err[j]=preds
-                if (preds==target)[0]:
-                    correct+=1
-                delta_w, delta_b = self.backpropogate(input_data, preds, target)
-                self.update_weights_bias(delta_w, delta_b, learning_rate)
-                
-            print("epoch",i+1,"Loss:",error_updated,"Accuracy:",(correct/len(y_data))*100,"%")
+                #forward pass
+                preds[j]=self.forward(inputData[j])
+            #calculate loss
+            loss = (preds-y_data)**2
+            loss=np.sum(loss, axis=1)
 
+            correct = list((preds-y_data)).count(0) #count correct
+            grad_y_pred = (2.*np.sum((preds-y_data), axis=1)).reshape((4,1))
+            h=preds.copy()
+            #compute gradients
+            for j in reversed(range(len(self.network))): #go through weights
+                print(grad_y_pred.transpose().shape,h.shape)
+                grad_W=np.dot(grad_y_pred.transpose(),h)
+                print(grad_W.transpose().shape,grad_y_pred.transpose().shape)
+                h=np.dot(grad_W.transpose(),grad_y_pred.transpose())
+                print(grad_W.shape,self.network[j].matrix.shape)
+                #gradient decsent
+                self.network[j].matrix-= 1e-4 * grad_W
 
-
-
+            print("epoch",i+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
