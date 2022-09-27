@@ -16,17 +16,17 @@ net.add_bias(vals=np.array([0,0]))
 #off
 x=np.array([[0],[0]])
 num=net.forward(x)
-print(np.sum(num)/4>0)
+print(np.sum(num)/2>0)
 
 #on
 x=np.array([[0],[1]])
 num=net.forward(x)
-print(np.sum(num)/4>0)
+print(np.sum(num)/2>0)
 
 #on
 x=np.array([[1],[0]])
 num=net.forward(x)
-print(np.sum(num)/4>0)
+print(np.sum(num)/2>0)
 
 #on
 x=np.array([[1],[1]])
