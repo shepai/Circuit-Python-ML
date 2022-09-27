@@ -87,6 +87,12 @@ class Network:
     def __init__(self,num_out):
         self.network=[]
         self.num_out=num_out
+    """
+    Adds a layer to the network
+    @param: nodes
+    @param: vals
+    @param: act
+    """
     def add_layer(self,nodes,vals=None,act=None):
         layer=Layer(nodes,self.num_out,vals=vals,activ=act) #default x by y
         if len(self.network)>0: #there are previous nodes
@@ -100,12 +106,21 @@ class Network:
             self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
         self.network.append(layer) #add the layer to the network
+    """
+    adds bias to the network
+    @param: vals
+    """
     def add_bias(self,vals=None):
         assert len(self.network)>0, "Network is empty. Add layers"
         size=self.network[-1].getShape() #get the end sizing to add on
         if type(vals)==type(None):
             vals=normal(size=(size,1))
         self.network[-1].setBias(vals) #set the bias in the current end layer
+    """
+
+    @param: inp
+    @return: x
+    """
     def forward(self,inp):
         #input layer
         assert len(self.network)>0, "Network is empty. Add layers"
@@ -125,6 +140,9 @@ class Network:
         x=self.network[-1].activation_func(x)
         x=np.sum(x, axis=1)
         return x
+    """
+    show all the network layers and biases
+    """
     def show(self):
         #show all the network layers and biases
         for i in range(len(self.network)):
