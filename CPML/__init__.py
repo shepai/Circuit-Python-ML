@@ -143,29 +143,31 @@ class Network:
 
     def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
-        sumError=0
-
+        correct=0
         x,y=inputData.shape
         X_data=inputData.reshape((y,x))
-        for i in range(epochs):
-            preds=np.zeros(y_data.shape)
+        for epoch in range(epochs):
             correct=0
             #calculate loss
             preds=self.forward(X_data) #get forward pass
             loss = (preds-y_data.transpose())**2 #get loss
-            loss= np.sum(np.sum(loss, axis=1)) #calculate overall loss
-            print(loss)
+            print(preds.shape,y_data.shape)
+            loss= np.sum(np.sum(loss, axis=0)) #calculate overall loss
+
             #calculate gradients
             grad_h = 2.*(preds-y_data.transpose())
-            """
-            print(self.network[2].matrix.shape,grad_h.shape,self.network[1].a.transpose().shape)
-            grad_W3=np.dot(grad_h,self.network[1].a.transpose())
-            print(grad_W3.shape,self.network[2].matrix.shape)
-            self.network[2].matrix-=1e-4 * grad_W3
-            """
-            #print("epoch",i+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
             for i in reversed(range(len(self.network))):
                 grad_W=np.dot(grad_h,self.network[i-1].a.transpose())
                 grad_h=np.dot(self.network[i].matrix.transpose(),grad_h)
                 assert grad_W.shape==self.network[i].matrix.shape, "matrix incorrect got "+str(grad_W.shape)+"but expected "+str(self.network[2].matrix.shape)
-                self.network[i].matrix-=1e-4 * grad_W
+                self.network[i].matrix-=1e-2 * grad_W #learning rate
+            #calculate accuracy and display
+            p=preds.transpose()
+            for i in range(len(y_data)):
+                c=0
+                for k in range(len(y_data[i])):
+                    if round(p[i][k])==round(y_data[i][k]):
+                        c+=1
+                if c==len(y_data[i]):
+                    correct+=1
+            print("epoch",epoch+1,"Loss:",loss,"Accuracy:",(correct/len(y_data.flatten()))*100,"%")
