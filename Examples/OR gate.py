@@ -9,26 +9,26 @@ def activation(nump):
     return np.zeros(nump.shape)
 #create the network
 net=Network(2)
-net.add_layer(2,vals=np.array([1,0,1,0]),act=activation)
+net.add_layer(2,vals=np.array([1,1,0,0]),act=activation)
 net.add_bias(vals=np.array([0,0]))
 
 
 #off
-x=np.array([[0],[0]])
+x=np.array([0,0])
+num=net.forward(x)
+print(np.sum(num)/2>0)
+
+#off
+x=np.array([0,1])
+num=net.forward(x)
+print(np.sum(num)/2>0)
+
+#off
+x=np.array([1,0])
 num=net.forward(x)
 print(np.sum(num)/2>0)
 
 #on
-x=np.array([[0],[1]])
+x=np.array([1,1])
 num=net.forward(x)
 print(np.sum(num)/2>0)
-
-#on
-x=np.array([[1],[0]])
-num=net.forward(x)
-print(np.sum(num)/2>0)
-
-#on
-x=np.array([[1],[1]])
-num=net.forward(x)
-print(np.sum(num)/4>0)

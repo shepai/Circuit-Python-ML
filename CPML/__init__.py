@@ -55,9 +55,9 @@ generate a layer to hold information on network
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None,activ=None):
         if type(vals)==type(None):
-            self.matrix=normal(size=(nodes_in,nodes_out)) #generate random weights
+            self.matrix=normal(size=(nodes_out,nodes_in)) #generate random weights
         else:
-            self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
+            self.matrix=vals.reshape((nodes_out,nodes_in)) #generate set weights
         self.vals=vals
         self.bias=None
         self.activation_func=activ
@@ -65,8 +65,6 @@ class Layer:
             self.activation_func=self.activation_
         self.a = 0 # defines the output of the layer after running through activation
         self.z = 0 # defines the input of layer to the activation function
-    def __mul__(self,other):
-        return np.dot(other,self.matrix) #multiply the matrices together
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
     def setBias(self,bias):
@@ -78,6 +76,8 @@ class Layer:
         return self.a
     def activation_grad(self):
         return self.a * (1 - self.a)
+    def T(self):
+        return self.matrix.transpose()
 
 """
 The network that combines all the layers together
@@ -101,7 +101,7 @@ class Network:
             activation=layer.activation_func
             num=layer.getShape()
             val=layer.vals
-            layer=Layer(num[0],nodes,vals=val,activ=activation)
+            layer=Layer(num[1],nodes,vals=val,activ=activation)
             layer.setBias(bias)
             self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
@@ -122,23 +122,12 @@ class Network:
     @return: x
     """
     def forward(self,inp):
-        #input layer
-        assert len(self.network)>0, "Network is empty. Add layers"
-        x=inp * self.network[0].matrix
-        #x=self.network[0].activation_func(x)
-        sub=self.network[1:-1]
-        #hidden layers
-        for i in range(len(sub)):
-            x=np.dot(x,self.network[i+1].matrix) #perform multiplication
-            if type(self.network[i+1].bias)!=type(None):
-                x += self.network[-1].bias #add the biases
-            x=self.network[i+1].activation_func(x)
-        #output layer
-        x=np.dot(x,self.network[-1].matrix) #perform multiplication
-        if type(self.network[-1].bias)!=type(None):
-            x += self.network[-1].bias #add the biases
-        x=self.network[-1].activation_func(x)
-        x=np.sum(x, axis=1)
+        x=inp
+        for i in range(len(self.network)):
+            self.network[i].a=x.copy()
+            x=self.network[i].activation_func(np.dot(self.network[i].matrix,x))
+        #print(x.shape)
+        #x = np.sum(x,axis=1)
         return x
     """
     show all the network layers and biases
@@ -151,27 +140,24 @@ class Network:
     def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
         sumError=0
+
+        x,y=inputData.shape
+        X_data=inputData.reshape((y,x))
         for i in range(epochs):
             preds=np.zeros(y_data.shape)
             correct=0
-            for j in range(len(inputData)):
-                #forward pass
-                preds[j]=self.forward(inputData[j])
             #calculate loss
-            loss = (preds-y_data)**2
-            loss=np.sum(loss, axis=1)
-
-            correct = list((preds-y_data)).count(0) #count correct
-            grad_y_pred = (2.*np.sum((preds-y_data), axis=1)).reshape((4,1))
-            h=preds.copy()
-            #compute gradients
-            for j in reversed(range(len(self.network))): #go through weights
-                print(grad_y_pred.transpose().shape,h.shape)
-                grad_W=np.dot(grad_y_pred.transpose(),h)
-                print(grad_W.transpose().shape,grad_y_pred.transpose().shape)
-                h=np.dot(grad_W.transpose(),grad_y_pred.transpose())
-                print(grad_W.shape,self.network[j].matrix.shape)
-                #gradient decsent
-                self.network[j].matrix-= 1e-4 * grad_W
-
-            print("epoch",i+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
+            preds=self.forward(X_data)
+            for layer in self.network:
+                print(">>",layer.a.shape,layer.matrix.shape)
+            loss = (preds-y_data.transpose())**2
+            loss= np.sum(np.sum(loss, axis=1))
+            print(loss)
+            #calculate gradients
+            grad_h = 2.*(preds-y_data.transpose())
+            print(self.network[2].matrix.shape,grad_h.shape,self.network[2].a.transpose().shape)
+            grad_W3=np.dot(grad_h,self.network[-1].a.transpose())
+            assert grad_W3.shape==self.network[2].matrix.shape, "matrix incorrect got "+str(grad_W3.shape)+"but expected "+str(self.network[2].matrix.shape)
+            print(grad_W3.shape,self.network[2].matrix.shape)
+            self.network[2].matrix-=1e-4 * grad_W3
+            #print("epoch",i+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
