@@ -123,9 +123,13 @@ class Network:
     """
     def forward(self,inp):
         x=inp
+        #self.network[0].a=x.copy()
         for i in range(len(self.network)):
+            x=np.dot(self.network[i].matrix,x)
+            if type(self.network[i].bias)!=type(None):
+                x+=self.network[i].bias
+            x=self.network[i].activation_func(x)
             self.network[i].a=x.copy()
-            x=self.network[i].activation_func(np.dot(self.network[i].matrix,x))
         #print(x.shape)
         #x = np.sum(x,axis=1)
         return x
@@ -147,17 +151,21 @@ class Network:
             preds=np.zeros(y_data.shape)
             correct=0
             #calculate loss
-            preds=self.forward(X_data)
-            for layer in self.network:
-                print(">>",layer.a.shape,layer.matrix.shape)
-            loss = (preds-y_data.transpose())**2
-            loss= np.sum(np.sum(loss, axis=1))
+            preds=self.forward(X_data) #get forward pass
+            loss = (preds-y_data.transpose())**2 #get loss
+            loss= np.sum(np.sum(loss, axis=1)) #calculate overall loss
             print(loss)
             #calculate gradients
             grad_h = 2.*(preds-y_data.transpose())
-            print(self.network[2].matrix.shape,grad_h.shape,self.network[2].a.transpose().shape)
-            grad_W3=np.dot(grad_h,self.network[-1].a.transpose())
-            assert grad_W3.shape==self.network[2].matrix.shape, "matrix incorrect got "+str(grad_W3.shape)+"but expected "+str(self.network[2].matrix.shape)
+            """
+            print(self.network[2].matrix.shape,grad_h.shape,self.network[1].a.transpose().shape)
+            grad_W3=np.dot(grad_h,self.network[1].a.transpose())
             print(grad_W3.shape,self.network[2].matrix.shape)
             self.network[2].matrix-=1e-4 * grad_W3
+            """
             #print("epoch",i+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
+            for i in reversed(range(len(self.network))):
+                grad_W=np.dot(grad_h,self.network[i-1].a.transpose())
+                grad_h=np.dot(self.network[i].matrix.transpose(),grad_h)
+                assert grad_W.shape==self.network[i].matrix.shape, "matrix incorrect got "+str(grad_W.shape)+"but expected "+str(self.network[2].matrix.shape)
+                self.network[i].matrix-=1e-4 * grad_W

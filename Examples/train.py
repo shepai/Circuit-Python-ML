@@ -15,4 +15,4 @@ y=np.array([[0,0],[0,0],[0,0],[1,1]])
 print(net.forward(X_data[0]))
 
 #run training loop    
-net.train(X_data,y,10,0.05)
+net.train(X_data,y,1000,0.05)
