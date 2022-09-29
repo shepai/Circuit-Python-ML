@@ -140,7 +140,12 @@ class Network:
         #show all the network layers and biases
         for i in range(len(self.network)):
             print("Layer",i+1,", nodes:",self.network[i].getShape(),", biases:",self.network[i].bias)
-
+    """
+    @param: inputData
+    @param: y_data
+    @param: epochs
+    @param: learning_rate
+    """
     def train(self,inputData,y_data,epochs,learning_rate):
         #update all the weights via the MSE
         correct=0
@@ -151,7 +156,6 @@ class Network:
             #calculate loss
             preds=self.forward(X_data) #get forward pass
             loss = (preds-y_data.transpose())**2 #get loss
-            print(preds.shape,y_data.shape)
             loss= np.sum(np.sum(loss, axis=0)) #calculate overall loss
 
             #calculate gradients
@@ -171,3 +175,5 @@ class Network:
                 if c==len(y_data[i]):
                     correct+=1
             print("epoch",epoch+1,"Loss:",loss,"Accuracy:",(correct/len(y_data.flatten()))*100,"%")
+    def trainGA(self,inputData,y_data,epochs,learning_rate):
+        pass
