@@ -99,4 +99,4 @@ y=np.array([[0,0],[1,1],[1,1],[0,0]]) #expected labels
 net.train(X_data,y,1000,0.05) #train
 ```
 
-The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. The final parameter is the learning rate.
+The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. We then have epochs, which in the example above is 1000. This is how many iterations the training loop will execute. The final parameter is the learning rate.
