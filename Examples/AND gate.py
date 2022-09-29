@@ -13,13 +13,7 @@ net.add_layer(2,vals=np.array([1,1,1,1]),act=activation)
 net.add_bias(vals=np.array([-2,-2]))
 net.show()
 """"""
-"""
-#set up logic gate data and expected outcome
-X_data=np.array([[0,0],[0,1],[1,0],[1,1]])
-y=np.array([[0,0],[0,0],[0,0],[1,1]])
 
-net.train(X_data,y,100,0.5)
-"""
 #off
 x=np.array([0,0])
 num=net.forward(x)
