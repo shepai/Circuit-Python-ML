@@ -39,7 +39,7 @@ myNet=Network(2) #this network has 2 outputs
 Following on from that, we can add layers and biases, with the specified number of nodes in each.
 
 ```
-myNet.add_layer(5)
+myNet.add_layer(5) #5 inputs
 myNet.add_bias()
 myNet.add_layer(2)
 myNet.add_layer(4)
@@ -78,4 +78,25 @@ net.show()
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
 
 ### Training
-It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backpropogation. 
+It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
+
+Using the training example, you can generate inputs and outputs, and train a network to learn them.
+```
+from CPML import *
+import ulab.numpy as np
+
+#create neural network
+net=Network(2) #two outputs
+net.add_layer(2) #two inputs
+net.add_layer(5) #hidden layer of 5
+net.show()
+
+#set up logic gate data and expected outcome
+X_data=np.array([[0,0],[0,1],[1,0],[1,1]]) #training data
+y=np.array([[0,0],[1,1],[1,1],[0,0]]) #expected labels
+
+#run training loop    
+net.train(X_data,y,1000,0.05) #train
+```
+
+The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. The final parameter is the learning rate.

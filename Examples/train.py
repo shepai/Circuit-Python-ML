@@ -4,7 +4,6 @@ import ulab.numpy as np
 #create neural network
 net=Network(2)
 net.add_layer(2)
-net.add_layer(7)
 net.add_layer(5)
 net.show()
 
@@ -14,4 +13,4 @@ y=np.array([[0,0],[1,1],[1,1],[0,0]])
 
 
 #run training loop    
-net.train(X_data,y,1,0.05)
+net.train(X_data,y,1000,0.05)
