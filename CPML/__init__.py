@@ -25,12 +25,14 @@ def normal(mean=0,std=0.5,size=[5]):
     ar=np.zeros(size)
     ar=ar.flatten() #generate numpy
     secondary=np.zeros(num*10)
-    for i in range(num*10):
+    for i in range(0,num*10 -1,2):
         X=maths.sqrt(abs(-2 * maths.log(i+1/num))) * maths.cos(2*maths.pi * i+1/num)
         #Y=maths.sqrt(abs(-2 * maths.log(i+1/num))) * maths.sin(2*maths.pi * i+1/num)
         X_ = mean + std * X
+        X_n = mean - std * X
         #Y_ = mean + std * Y
         secondary[i]=X_
+        secondary[i+1]=X_n
     for i in range(num): #select only from the random variables
         ar[i]=secondary[random.randint(0,num*10 -1)]
     return ar.reshape(size)
@@ -164,7 +166,7 @@ class Network:
                 grad_W=np.dot(grad_h,self.network[i-1].a.transpose())
                 grad_h=np.dot(self.network[i].matrix.transpose(),grad_h)
                 assert grad_W.shape==self.network[i].matrix.shape, "matrix incorrect got "+str(grad_W.shape)+"but expected "+str(self.network[2].matrix.shape)
-                self.network[i].matrix-=1e-2 * grad_W #learning rate
+                self.network[i].matrix-=1e-2 * grad_W * learning_rate#learning rate
             #calculate accuracy and display
             p=preds.transpose()
             for i in range(len(y_data)):
@@ -174,6 +176,45 @@ class Network:
                         c+=1
                 if c==len(y_data[i]):
                     correct+=1
-            print("epoch",epoch+1,"Loss:",loss,"Accuracy:",(correct/len(y_data.flatten()))*100,"%")
-    def trainGA(self,inputData,y_data,epochs,learning_rate):
-        pass
+            print("epoch",epoch+1,"Loss:",loss,"Accuracy:",(correct/len(y_data))*100,"%")
+    def trainGA(self,inputData,y_data,epochs,learning_rate,fitnessFunc=None):
+        x,y=inputData.shape
+        X_data=inputData.reshape((y,x))
+        def fitness(y,pred): #default fitness function
+            correct=0
+            p=preds.transpose()
+            for i in range(len(y)): #calculate how correct the prediction was
+                c=0
+                for k in range(len(y[i])):
+                    if round(p[i][k])==round(y[i][k]):
+                        c+=1
+                if c==len(y[i]):
+                    correct+=1
+            return correct/len(y)
+        def mutate(matrix,rate): #mutate the matrix going in
+            shap=matrix.shape
+            flat1=matrix.flatten()
+            new=normal(mean=0,std=1,size=flat1.shape) #add noise
+            for i in range(len(flat1)):
+                if random.random()<rate: #mutation rate enforcement
+                    flat1[i]=new[i]
+            return flat1.reshape(shap) #reshape the array
+        if fitnessFunc==None:
+            fitnessFunc=fitness
+        #get initial fitness
+        preds=self.forward(X_data)
+        curfit=fitnessFunc(y_data,preds)
+        for gen in range(epochs):
+            safe=[]
+            for i in range(len(self.network)): #go through network
+                safe.append(self.network[i].matrix.copy()) #save current weights
+                self.network[i].matrix+=mutate(self.network[i].matrix.copy(),learning_rate)
+            preds=self.forward(X_data)
+            fit=fitnessFunc(y_data,preds)
+            if fit<=curfit: #if fitness is worse then reset the weights
+                #print(np.sum(self.network[i].matrix))
+                for i in range(len(self.network)):
+                    self.network[i].matrix=safe[i].copy()
+                #print(np.sum(self.network[i].matrix))
+            else: curfit=fit
+            print("Fitness at Gen",gen+1,":",curfit,fit)
