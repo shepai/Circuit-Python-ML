@@ -5,10 +5,10 @@ circuitpython devices are low cost, low power and small in physical size. They a
 
 # Table of contents
 1. [The library](#lib)
-  1. [Gaussian randomized matrices](#Gaussian)
-  2. [Creating networks](#Creating)
-  3. [Activation functions](#Activation)
-  4. [Forward pass](#forward)
+    1. [Gaussian randomized matrices](#Gaussian)
+    2. [Creating networks](#Creating)
+    3. [Activation functions](#Activation)
+    4. [Forward pass](#forward)
 2. [Training](#Training)
     1. [Backprop](#Backprop)
     2. [Genetic algorithm](#Genetic)
