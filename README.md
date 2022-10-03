@@ -90,8 +90,7 @@ An activation function must take in a single parameter that is an output matrix 
 ## Forward pass <a name="forward"></a>
 Passing data through the network will take in an array of shape (N,m) where N is the size of the data set and m is the number of nodes in the proceeding layer.
 
-$$
-\left(\begin{array}{cc}
+$$ \left(\begin{array}{cc}
 x_1 & x_2\\
 x_3 & x_4
 \end{array}\right)
