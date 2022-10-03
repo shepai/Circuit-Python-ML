@@ -12,7 +12,7 @@ net.show()
 X_data=normal(mean=0,std=1,size=(8,2)) #N by input nodes
 y=normal(size=(8,3)) #N by output nodes
 
-def fitness(y,preds): #default fitness function
+def fitness(y,preds): #fitness function
     correct=0
     p=preds.transpose()
     for i in range(len(y)): #calculate how correct the prediction was

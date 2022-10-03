@@ -100,3 +100,21 @@ net.train(X_data,y,1000,0.05) #train
 ```
 
 The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. We then have epochs, which in the example above is 1000. This is how many iterations the training loop will execute. The final parameter is the learning rate.
+
+You can also train using a genetic algorithm. Backprop algorithms can be computationally challenging for such small devices.
+
+```
+network.trainGA(inputData,y_data,epochs,learning_rate,fitnessFunc=None):
+```
+
+Within examples you can find some code that trains a neural network to predict classes using a genetic algorithm. The fitness is determined by the amount of correct predictions. One example of this is the following snippet where the y data, and predicted labels are counted. 
+
+```
+def fitness(y,preds): #fitness function
+    correct=0
+    p=preds.transpose()
+    for i in range(len(y)): #calculate how correct the prediction was
+        if np.argmax(p[i])==np.argmax(y[i]):
+            correct+=1
+    return correct/len(y)
+```
