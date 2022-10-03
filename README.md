@@ -95,8 +95,14 @@ x_1 & x_2\\
 x_3 & x_4
 \end{array}\right)
 \left(\begin{array}{cc}
-  w_1 & w_2\\
-  w_3 & w_4
+  w_1 & w_2 & w_3\\
+  w_4 & w_5 & w_6
+\end{array}\right)
+
+=
+\left(\begin{array}{cc}
+  w1_1 & w1_2 & w1_3\\
+  w1_4 & w1_5 & w1_6
 \end{array}\right)
 $$
 
