@@ -3,6 +3,17 @@ This project is to provide the tools for ML/AI on a circuit python device. It ma
 
 circuitpython devices are low cost, low power and small in physical size. They are great for small robotics and hardware projects. We have been working on a neural network library that makes AI easy to implement, with a low storage requirement and provide many examples of projects.
 
+# Table of contents
+1. [The library](#How to import the library and use its functionality)
+  1. [Gaussian randomized matrices](#)
+  2. [Creating networks](#)
+  3. [Activation functions](#)
+2. [Training](#methods of training the device)
+    1. [Backprop](#)
+    2. [Genetic algorithm](#)
+
+
+
 ## The Library
 The library is called in using the imports:
 
@@ -77,9 +88,10 @@ net.show()
 ```
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
 
-### Training
+## Training
 It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
 
+### Backprop
 Using the training example, you can generate inputs and outputs, and train a network to learn them.
 ```
 from CPML import *
@@ -101,13 +113,14 @@ net.train(X_data,y,1000,0.05) #train
 
 The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. We then have epochs, which in the example above is 1000. This is how many iterations the training loop will execute. The final parameter is the learning rate.
 
+### Genetic algorithm
 You can also train using a genetic algorithm. Backprop algorithms can be computationally challenging for such small devices.
 
 ```
 network.trainGA(inputData,y_data,epochs,learning_rate,fitnessFunc=None):
 ```
 
-Within examples you can find some code that trains a neural network to predict classes using a genetic algorithm. The fitness is determined by the amount of correct predictions. One example of this is the following snippet where the y data, and predicted labels are counted. 
+Within examples you can find some code that trains a neural network to predict classes using a genetic algorithm. The fitness is determined by the amount of correct predictions. One example of this is the following snippet where the y data, and predicted labels are counted.
 
 ```
 def fitness(y,preds): #fitness function
