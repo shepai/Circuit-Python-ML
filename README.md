@@ -8,11 +8,10 @@ circuitpython devices are low cost, low power and small in physical size. They a
   1. [Gaussian randomized matrices](#Gaussian)
   2. [Creating networks](#Creating)
   3. [Activation functions](#Activation)
+  4. [Forward pass](#forward)
 2. [Training](#Training)
     1. [Backprop](#Backprop)
     2. [Genetic algorithm](#Genetic)
-
-
 
 ## The Library <a name="lib"></a>
 The library is called in using the imports:
@@ -87,6 +86,21 @@ net.add_bias(vals=np.array([-1,-1]))
 net.show()
 ```
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
+
+## Forward pass <a name="forward"></a>
+Passing data through the network will take in an array of shape (N,m) where N is the size of the data set and m is the number of nodes in the proceeding layer.
+
+$$
+\left(\begin{array}{cc}
+x_1 & x_2\\
+x_3 & x_4
+\end{array}\right)
+\dot
+\left(\begin{array}{cc}
+  w_1 & w_2\\
+  w_3 & w_4
+\end{array}\right)
+$$
 
 ## Training <a name="Training"></a>
 It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
