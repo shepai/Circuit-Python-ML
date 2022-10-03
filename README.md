@@ -5,12 +5,12 @@ circuitpython devices are low cost, low power and small in physical size. They a
 
 # Table of contents
 1. [The library](#lib)
-  1. [Gaussian randomized matrices](#Gaussian randomized matrices)
-  2. [Creating networks](#Creating a networks)
-  3. [Activation functions](#Activation functions)
+  1. [Gaussian randomized matrices](#Gaussian)
+  2. [Creating networks](#Creating)
+  3. [Activation functions](#Activation)
 2. [Training](#Training)
     1. [Backprop](#Backprop)
-    2. [Genetic algorithm](#Genetic algorithm)
+    2. [Genetic algorithm](#Genetic)
 
 
 
@@ -21,7 +21,7 @@ The library is called in using the imports:
 from CPML import *
 ```
 
-### Gaussian randomized matrices <a name="Gaussian randomized matrices"></a>
+### Gaussian randomized matrices <a name="Gaussian"></a>
 We can then proceed to use its features such as a normal distribution creation of an array. In standard Python this is done with the following:
 ```
 import numpy as np
@@ -39,7 +39,7 @@ array([[1.29068, 0.517823],
        [0.987146, 1.1901]], dtype=float32)
 ```
 
-### Creating a networks <a name="Creating a networks"></a>
+### Creating a networks <a name="Creating"></a>
 When creating an ANN we use create it as an object and add the number of output nodes that the network will have.
 
 ```
@@ -66,7 +66,7 @@ myNet.add_bias(val=np.array([-1,-1]))
 ```
 The best way to understand this is checking out the examples folder. Here you can find logic gate networks for AND and OR which shows you the network predicting the correct numbers.
 
-### Activation functions
+### Activation functions <a name="Activation"></a>
 
 The layers have an inbuilt default activation function, however you can specify your own as a parameter. For the AND gate example we can ignore two of the weights using .transpose()[0] and gather the inputs from the input nodes. If the sum of both these values is >=0 then the neuron is activated, otherwise the neuron is not. The 1 and 0 represent the true and false within the output of the logic gate.
 
@@ -88,10 +88,10 @@ net.show()
 ```
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
 
-## Training
+## Training <a name="Training"></a>
 It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
 
-### Backprop
+### Backprop <a name="Backprop"></a>
 Using the training example, you can generate inputs and outputs, and train a network to learn them.
 ```
 from CPML import *
@@ -113,7 +113,7 @@ net.train(X_data,y,1000,0.05) #train
 
 The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. We then have epochs, which in the example above is 1000. This is how many iterations the training loop will execute. The final parameter is the learning rate.
 
-### Genetic algorithm
+### Genetic algorithm <a name="Genetic"></a>
 You can also train using a genetic algorithm. Backprop algorithms can be computationally challenging for such small devices.
 
 ```
