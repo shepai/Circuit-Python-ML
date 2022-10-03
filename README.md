@@ -4,7 +4,7 @@ This project is to provide the tools for ML/AI on a circuit python device. It ma
 circuitpython devices are low cost, low power and small in physical size. They are great for small robotics and hardware projects. We have been working on a neural network library that makes AI easy to implement, with a low storage requirement and provide many examples of projects.
 
 # Table of contents
-1. [The library](##The Library)
+1. [The library](#lib)
   1. [Gaussian randomized matrices](###Gaussian randomized matrices)
   2. [Creating networks](###Creating a networks)
   3. [Activation functions](###Activation functions)
@@ -14,7 +14,7 @@ circuitpython devices are low cost, low power and small in physical size. They a
 
 
 
-## The Library
+## The Library <a name="lib"></a>
 The library is called in using the imports:
 
 ```
