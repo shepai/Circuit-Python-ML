@@ -5,12 +5,12 @@ circuitpython devices are low cost, low power and small in physical size. They a
 
 # Table of contents
 1. [The library](#lib)
-  1. [Gaussian randomized matrices](###Gaussian randomized matrices)
-  2. [Creating networks](###Creating a networks)
-  3. [Activation functions](###Activation functions)
-2. [Training](##Training)
-    1. [Backprop](###Backprop)
-    2. [Genetic algorithm](###Genetic algorithm)
+  1. [Gaussian randomized matrices](#Gaussian randomized matrices)
+  2. [Creating networks](#Creating a networks)
+  3. [Activation functions](#Activation functions)
+2. [Training](#Training)
+    1. [Backprop](#Backprop)
+    2. [Genetic algorithm](#Genetic algorithm)
 
 
 
@@ -21,7 +21,7 @@ The library is called in using the imports:
 from CPML import *
 ```
 
-### Gaussian randomized matrices
+### Gaussian randomized matrices <a name="Gaussian randomized matrices"></a>
 We can then proceed to use its features such as a normal distribution creation of an array. In standard Python this is done with the following:
 ```
 import numpy as np
@@ -39,7 +39,7 @@ array([[1.29068, 0.517823],
        [0.987146, 1.1901]], dtype=float32)
 ```
 
-### Creating a networks
+### Creating a networks <a name="Creating a networks"></a>
 When creating an ANN we use create it as an object and add the number of output nodes that the network will have.
 
 ```
