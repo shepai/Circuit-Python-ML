@@ -88,7 +88,7 @@ net.show()
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
 
 ## Forward pass <a name="forward"></a>
-Passing data through the network will take in an array of shape (N,m) where N is the size of the data set and m is the number of nodes in the proceeding layer.
+Passing data through the network will take in an array of shape (N,m) where N is the size of the data set and m is the number of nodes in the proceeding layer. Our matrix of inputs represented by x is subjected to the dot product of the following layer. Lets say we have 2 input nodes and 3 hidden layer nodes, then a following of two output nodes, the following calculation would be made. The sample size of data is 3 items.
 
 $$
 \begin{bmatrix}
@@ -104,7 +104,29 @@ w_{1,4} & w_{1,5} & w_{1,6}\\
 w_{1,7} & w_{1,8} & w_{1,9}
 \end{bmatrix}
 $$
+Then this output is subjected to an activation function, represented as $\phi $ is proceeded into the next layer.
+$$
+\phi \begin{pmatrix}\begin{bmatrix}
+w_{1,1} & w_{1,2} & w_{1,3}\\
+w_{1,4} & w_{1,5} & w_{1,6}\\
+w_{1,7} & w_{1,8} & w_{1,9}
+\end{bmatrix}
+\end{pmatrix}
+\cdot
+\begin{bmatrix}
+w_{2,1} & w_{2,2}\\
+w_{2,4} & w_{2,5}\\
+w_{2,7} & w_{2,8}
+\end{bmatrix}
+=
+\begin{bmatrix}
+o_{1,1} & o_{1,2}\\
+o_{2,1} & o_{2,2}\\
+o_{3,1} & o_{3,2}
+\end{bmatrix}
+$$
 
+Our output layer is of shape (N,o) where N was the initial sample size of data, and o is the number of output nodes.
 
 
 ## Training <a name="Training"></a>
