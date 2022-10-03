@@ -90,20 +90,22 @@ An activation function must take in a single parameter that is an output matrix 
 ## Forward pass <a name="forward"></a>
 Passing data through the network will take in an array of shape (N,m) where N is the size of the data set and m is the number of nodes in the proceeding layer.
 
-$$ \left(\begin{array}{cc}
+$$
+\begin{bmatrix}
 x_1 & x_2\\
-x_3 & x_4
-\end{array}\right)
-
-\left(\begin{array}{cc}
-  w_1 & w_2 & w_3\\
-  w_4 & w_5 & w_6
-\end{array}\right)
+x_3 & x_4\\
+x_5 & x_6
+\end{bmatrix} \cdot \begin{bmatrix}
+w_1 & w_2 & w_3\\
+w_4 & w_5 & w_6
+\end{bmatrix} = \begin{bmatrix}
+w_{1,1} & w_{1,2} & w_{1,3}\\
+w_{1,4} & w_{1,5} & w_{1,6}\\
+w_{1,7} & w_{1,8} & w_{1,9}
+\end{bmatrix}
 $$
 
-$$
 
-$$
 
 ## Training <a name="Training"></a>
 It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
