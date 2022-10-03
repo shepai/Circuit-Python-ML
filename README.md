@@ -105,7 +105,7 @@ w_{1,7} & w_{1,8} & w_{1,9}
 \end{bmatrix}
 $$
 
-Then this output is subjected to an activation function, represented as $$\phi$$ is proceeded into the next layer.
+Then this output is subjected to an activation function, represented as $\phi$ is proceeded into the next layer.
 
 $$
 \phi \begin{pmatrix}\begin{bmatrix}
