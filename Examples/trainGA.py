@@ -19,6 +19,8 @@ def fitness(y,preds): #fitness function
         if np.argmax(p[i])==np.argmax(y[i]):
             correct+=1
     return correct/len(y)
+
 #run training loop    
 net.trainGA(X_data,y,100,0.2,fitnessFunc=fitness)
+
 

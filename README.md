@@ -128,6 +128,17 @@ $$
 
 Our output layer is of shape (N,o) where N was the initial sample size of data, and o is the number of output nodes.
 
+This therefore gives the option of deciding upon output. You may wish to pick the highest value with the argmax function. 
+```
+>>> X_data=normal(mean=0,std=1,size=(8,2)) #N by input nodes
+>>> out=net.forward(X_data.transpose())
+>>> out.shape
+(2, 8)
+>>> out_ind=np.argmax(out,axis=0)
+>>> out_ind
+array([1, 1, 1, 1, 1, 1, 1, 1], dtype=int16)
+```
+
 
 ## Training <a name="Training"></a>
 It is better recommended to train off of the device and transfer the weights and biases over. However, with smaller networks circuitpython is capable of performing backprop.
