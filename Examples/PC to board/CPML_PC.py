@@ -13,7 +13,8 @@ import random
 import math as maths
 import torch
 import torch.nn as nn
-import pandas as pd 
+import pandas as pd
+
 
 """
 generate a layer to hold information on network
@@ -24,9 +25,9 @@ generate a layer to hold information on network
 class Layer:
     def __init__(self,nodes_in,nodes_out,vals=None,activ=None):
         if type(vals)==type(None):
-            self.matrix=np.random.normal(size=(nodes_in,nodes_out)) #generate random weights
+            self.matrix=np.random.random(size=(nodes_out,nodes_in))*1.2 #generate random weights
         else:
-            self.matrix=vals.reshape((nodes_in,nodes_out)) #generate set weights
+            self.matrix=vals.reshape((nodes_out,nodes_in)) #generate set weights
         self.vals=vals
         self.bias=None
         self.matrix=nn.Parameter(torch.tensor(self.matrix,dtype=torch.float32)) #convert to tensor
@@ -40,7 +41,9 @@ class Layer:
     def getShape(self): #return the shape of the matrix
         return self.matrix.shape
     def setBias(self,bias):
-        self.bias=bias
+        if bias!=None:
+            self.bias=torch.tensor(bias)
+        else: self.bias==None
     def length(self):
         s=0
         if self.bias!=None: s+=len(self.bias.flatten())
@@ -51,14 +54,17 @@ class Layer:
         self.a = 1/(1 + torch.exp(-self.z))
         return self.a
     def activation_grad(self):
-        return self.a * (1 - self.a)   
-        
+        return self.a * (1 - self.a)
+    def setWeight(self,val):
+        val=val.reshape(self.getShape())
+        self.matrix=nn.Parameter(torch.tensor(val,dtype=torch.float32))
+
 """
 The network that combines all the layers together
 @param: num_out is how many nodes in the output layer
 """
 class Network:
-    def __init__(self,num_out): 
+    def __init__(self,num_out):
         self.network=[]
         self.num_out=num_out
         self.net=[]
@@ -70,7 +76,7 @@ class Network:
             activation=layer.activation_func
             num=layer.getShape()
             val=layer.vals
-            layer=Layer(num[0],nodes,vals=val,activ=activation)
+            layer=Layer(num[1],nodes,vals=val,activ=activation)
             layer.setBias(bias)
             self.network[-1]=layer #correct output of matrices before
             layer=Layer(nodes,self.num_out,vals=vals,activ=act) #generate layer with correct matrices
@@ -79,25 +85,18 @@ class Network:
         assert len(self.network)>0, "Network is empty. Add layers"
         size=self.network[-1].getShape() #get the end sizing to add on
         if type(vals)==type(None):
-            vals=normal(size=(size,1))
+            vals=np.random.random((size,1))
         self.network[-1].setBias(vals) #set the bias in the current end layer
     def forward(self,inp):
-        #input layer
-        assert len(self.network)>0, "Network is empty. Add layers"
-        x=inp * self.network[0].matrix
-        #x=self.network[0].activation_func(x)
-        sub=self.network[1:-1]
-        #hidden layers
-        for i in range(len(sub)):
-            x=torch.mm(x,self.network[i+1].matrix) #perform multiplication
-            if type(self.network[i+1].bias)!=type(None):
-                x += self.network[-1].bias #add the biases
-            x=self.network[i+1].activation_func(x)
-        #output layer
-        x=torch.mm(x,self.network[-1].matrix) #perform multiplication
-        if type(self.network[-1].bias)!=type(None):
-            x += self.network[-1].bias #add the biases
-        x=self.network[-1].activation_func(x)
+        x=inp
+        #self.network[0].a=x.copy()
+        for i in range(len(self.network)):
+            #print(self.network[i].matrix.shape,x.shape)
+            x=torch.matmul(self.network[i].matrix,x)
+            if type(self.network[i].bias)!=type(None):
+                x+=self.network[i].bias
+            x=self.network[i].activation_func(x)
+            self.network[i].a=x.clone()
         return x
     def show(self):
         #show all the network layers and biases
@@ -125,12 +124,20 @@ class Network:
             s+=len(layer.matrix.flatten())
         #indicies.append(s)
         return wb, indicies
-    def reform_weights(self,wb,indicies):
-        for i in range(0,indicies,3):
-            #stretch out the array
-            wb[ind[i]:ind[i+1]]=layer.matrix.flatten()
-            if ind[i+1]!=-1:
-                wb[ind[i+1]:ind[i+2]]=layer.bias.flatten()
+    def reform_weights(self,wb,ind):
+        self.network[0].setWeight(wb[ind[0]:ind[1]])
+        i=2
+        for j,layer in enumerate(self.network): #perform calculations
+            if i%2==0: #bias term
+                if ind[i]!=-1:
+                    layer.bias=wb[ind[i-1]:ind[i]]
+            elif i%2!=0: #weight term
+                if ind[i-1]!=-1:
+                    layer.setWeight(wb[ind[i-1]:ind[i]])
+                else:
+                    layer.setWeight(wb[ind[i-2]:ind[i]])
+            i+=1
+
     def parameters(self):
         n=[]
         for i,layer in enumerate(self.network): #perform calculations
@@ -143,4 +150,3 @@ class Network:
         wb,ind=self.get_weights() #gather
         pd.DataFrame(wb).to_csv(path+name+".csv", header=None, index=None)
         pd.DataFrame(np.array(ind)).to_csv(path+"meta_"+name+".csv", header=None, index=None)
-
