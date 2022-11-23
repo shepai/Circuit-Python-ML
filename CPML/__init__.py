@@ -80,6 +80,10 @@ class Layer:
         return self.a * (1 - self.a)
     def T(self):
         return self.matrix.transpose()
+    def setWeight(self,val):
+        val=np.array(val)
+        val=val.reshape(self.getShape())
+        self.matrix=val
 
 """
 The network that combines all the layers together
@@ -119,7 +123,6 @@ class Network:
             vals=normal(size=(size,1))
         self.network[-1].setBias(vals) #set the bias in the current end layer
     """
-
     @param: inp
     @return: x
     """
@@ -132,8 +135,7 @@ class Network:
                 x+=self.network[i].bias
             x=self.network[i].activation_func(x)
             self.network[i].a=x.copy()
-        #print(x.shape)
-        #x = np.sum(x,axis=1)
+
         return x
     """
     show all the network layers and biases
@@ -218,3 +220,19 @@ class Network:
                 #print(np.sum(self.network[i].matrix))
             else: curfit=fit
             print("Fitness at Gen",gen+1,":",curfit,fit)
+    def reform_weights(self,wb,ind):
+        back=ind[0]
+        biases=[2+(2*i) for i in range(((len(ind)-1)//2))]
+        layer=0
+        for i in range(1,len(ind)):
+            front=ind[i]
+            if i in biases: #bias term
+                if ind[i]!=-1:
+                    self.network[layer].bias=wb[back:front]
+                    back=ind[i]
+                layer+=1
+            else: #weight term
+                self.network[layer].setWeight(wb[back:front])
+                back=ind[i]
+
+
