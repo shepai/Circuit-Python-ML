@@ -236,3 +236,30 @@ class Network:
                 back=ind[i]
 
 
+"""
+Regression model
+"""
+class regression:
+    def __init__(self):
+        self.m = 0  # Initial slope
+        self.b = 0  # Initial intercept
+    def fit(self,X,y,learning_rate=0.01,epochs=1000):
+        for epoch in range(epochs):
+            # Compute predictions
+            y_pred = self.m * X + self.b
+
+            # Compute the loss (MSE)
+            loss = np.mean((y_pred - y) ** 2)
+
+            # Compute gradients
+            dm = (2 / len(X)) * np.sum((y_pred - y) * X)
+            db = (2 / len(X)) * np.sum(y_pred - y)
+
+            # Update model parameters
+            self.m = self.m - learning_rate * dm
+            self.b = self.b - learning_rate * db
+
+            if epoch % 100 == 0:
+                print(f'Epoch {epoch}: Loss = {loss:.4f}')
+    def predit(self,x):
+        return self.m * x + self.b
