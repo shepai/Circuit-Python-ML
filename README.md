@@ -184,3 +184,38 @@ def fitness(y,preds): #fitness function
             correct+=1
     return correct/len(y)
 ```
+
+## Regression models
+
+
+### Regression
+
+```
+X = np.array([1, 2, 3, 4, 5])
+y = np.array([2, 3, 4, 5, 6])
+
+reg=regression()
+reg.fit(X,y)
+# Make predictions
+new_X = np.array([6, 7, 8])
+predictions=reg.predit(new_X)
+print("Predictions:", predictions)
+```
+
+### Ridge regression
+
+```
+X = np.array([[0,0], [0,1], [1,0], [1,1]])
+y = np.array([0,0,0,1])
+
+
+X_test = np.array([[1,1],[0,1]])  # New data point to predict
+
+ridge=Ridge()
+theta_ridge=ridge.fit(X,y)
+prediction=ridge.predict(X_test)
+
+print("Ridge Regression Coefficients:", theta_ridge)
+print("Predicted value:", prediction)
+
+```
