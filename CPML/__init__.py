@@ -263,3 +263,31 @@ class regression:
                 print(f'Epoch {epoch}: Loss = {loss:.4f}')
     def predit(self,x):
         return self.m * x + self.b
+    
+def hstack(arr1, arr2):
+    return np.concatenate((arr1, arr2), axis=1)
+
+# Manually implement np.identity
+def identity(n):
+    return np.zeros((n, n)) + np.eye(n)
+
+class Ridge:
+    def __init__(self):
+        self.theta=0
+        self.bias=0
+    def fit(self, X, y, alpha=1):
+        m, n = X.shape
+        ones = np.ones((m, 1))
+        X_bias = hstack(ones, X)  # Add a bias term (intercept)
+
+        # Calculate the optimal parameters using the closed-form solution
+        A = np.dot(X_bias.transpose(),X_bias)
+        I = identity(n + 1)
+        I[0, 0] = 0  # Don't regularize the intercept
+        self.theta = np.dot(np.dot(np.linalg.inv(np.dot(X_bias.transpose(), X_bias) + alpha * I),X_bias.transpose()), y)
+        self.bias=X_bias
+        return self.theta
+    def predict(self, X):
+        X_test_bias = hstack(np.ones((X.shape[0], 1)), X)
+        print(X_test_bias.shape,self.theta.reshape((self.theta.shape[0],1)).shape)
+        return np.dot(X_test_bias, self.theta)
