@@ -12,6 +12,9 @@ circuitpython devices are low cost, low power and small in physical size. They a
 2. [Training](#Training)
     1. [Backprop](#Backprop)
     2. [Genetic algorithm](#Genetic)
+3. [Regresssion](#reg)
+    1. [Linear](#reg1)
+    2. [Ridge](#reg2)
 
 ## The Library <a name="lib"></a>
 The library is called in using the imports:
@@ -185,10 +188,10 @@ def fitness(y,preds): #fitness function
     return correct/len(y)
 ```
 
-## Regression models
+## Regression models <a name="reg"></a>
 
 
-### Regression
+### Regression <a name="reg1"></a>
 
 ```
 X = np.array([1, 2, 3, 4, 5])
@@ -202,7 +205,7 @@ predictions=reg.predit(new_X)
 print("Predictions:", predictions)
 ```
 
-### Ridge regression
+### Ridge regression <a name="reg2"></a>
 
 ```
 X = np.array([[0,0], [0,1], [1,0], [1,1]])
