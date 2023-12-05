@@ -1,18 +1,15 @@
 from CPML import *
 import ulab.numpy as np
 
-#create neural network
-net=Network(2)
-net.add_layer(2)
-net.add_layer(5)
-net.show()
+class myNet(Network):
+    def __init__(self,i,h,o):
+        self.layer1=LinearLayer(i,h)
+        self.out=LinearLayer(h,o)
+        self.layers=[self.layer1,sigmoid(),self.out]
+        self.compile()
 
-#set up logic gate data and expected outcome
-X_data=np.array([[0,0],[0,1],[1,0],[1,1]])
-y=np.array([[0,0],[1,1],[1,1],[0,0]])
-#set up logic gate data and expected outcome
-X_data=normal(size=(8,2))
-y=normal(size=(8,2))
-
-#run training loop    
-net.train(X_data,y,1000,0.05)
+net=myNet(5,6,2)
+data=normal(size=(100,5))
+labels=normal(size=(100,2))
+print(net.forward(normal(0,0.5,(10,5))).shape)
+net.train(data,labels,100,0.1)
