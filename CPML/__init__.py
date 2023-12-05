@@ -118,8 +118,8 @@ class Network:
             self.backward_propogation(x,error,learning_rate) #update weights
             if epoch%epochs//n_prints == 0: #print progress n_print times
                 print("Epoch",epoch,"Loss:",MSE(y,y_pred))
-            
-    def backward_propogation(self,x,error,lr):
+
+    def backward_propogation(self,x,error,lr,threshold=10):
         for i in range(len(self.layers) - 1, -1, -1): #loop backwards
             if self.layers[i].type=="layer":
                 if i == len(self.layers) - 1:
@@ -131,6 +131,14 @@ class Network:
                     layer_input = x.copy()
                 else:
                     layer_input = self.activations[i - 2]
+                shape=layer_delta.shape
+                gradient_norm = np.linalg.norm(layer_delta)  # Calculate the norm of the gradients
+                layer_delta=layer_delta.flatten()
+                if gradient_norm==0: gradient_norm=0.1
+                layer_delta[layer_delta>threshold]*=(threshold/gradient_norm)
+                layer_delta[layer_delta<threshold]*=(threshold/gradient_norm)
+                layer_delta=np.clip(layer_delta, -threshold, threshold)
+                layer_delta=layer_delta.reshape(shape)
                 self.layers[i].matrix += np.dot(layer_input.transpose(), layer_delta) * lr
                 if self.layers[i].bias.shape[0]==np.sum(layer_delta, axis=0).shape[0]:
                     self.layers[i].bias += np.sum(layer_delta, axis=0)* lr
@@ -206,6 +214,7 @@ class AutoEncoder(Network):
             y_pred=self.forward(x) #foward pass
             error=x-y_pred
             self.backward_propogation(x,error,learning_rate)
-            if epoch%epochs//n_prints == 0:
+            if epoch%n_prints == 0:
                 print("Epoch",epoch,"Loss:",MSE(x,y_pred))
+
 
