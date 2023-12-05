@@ -43,51 +43,59 @@ array([[1.29068, 0.517823],
 ```
 
 ### Creating a networks <a name="Creating"></a>
-When creating an ANN we use create it as an object and add the number of output nodes that the network will have.
+When creating an ANN we use create it as an object
 
 ```
 from CPML import *
 
-myNet=Network(2) #this network has 2 outputs
+myNet=Network() #this network has
 ```
 Following on from that, we can add layers and biases, with the specified number of nodes in each.
 
 ```
-myNet.add_layer(5) #5 inputs
-myNet.add_bias()
-myNet.add_layer(2)
-myNet.add_layer(4)
-myNet.add_bias()
-myNet.show() #display the network
+net=Network()
+layer=LinearLayer(10,5,bias=True)
+
+net.layers=[layer, sigmoid()] #add all outputs and activation functions
+net.compile() #compile network
 ```
-The network will automatically generate the weights and biases unless we specify otherwise using the 'val' parameter. This parameter takes in a numpy array of the specified size. It does not need to be the same matrix shape, but does need to contain the same amount of elements.
+The network will automatically generate the weights and biases unless we specify otherwise using the setLayer and setBias methods. This parameter takes in a numpy array of the specified size. It needs to be the same matrix shape as you specified
 
 ```
-myNet=Network(2) #this network has 2 outputs
-myNet.add_layer(2,val=np.array([1,0,1,0])) #4 weights as the inputs joining to the next layer
-myNet.add_bias(val=np.array([-1,-1]))
+myNet=Network() #this network has 2 outputs
+layer=LinearLayer(2,2,bias=True)
+layer.setLayer(np.array([[1,1],[1,1]]))
+layer.setBias(np.array([[-2],[-2]]))
+net.layers=[layer]
+net.compile()
 ```
 The best way to understand this is checking out the examples folder. Here you can find logic gate networks for AND and OR which shows you the network predicting the correct numbers.
 
 ### Activation functions <a name="Activation"></a>
 
-The layers have an inbuilt default activation function, however you can specify your own as a parameter. For the AND gate example we can ignore two of the weights using .transpose()[0] and gather the inputs from the input nodes. If the sum of both these values is >=0 then the neuron is activated, otherwise the neuron is not. The 1 and 0 represent the true and false within the output of the logic gate.
+The layers have an inbuilt default activation function, however you can specify your own as a parameter. For the AND gate example we can ignore two of the weights using . We can make out own activation functions as such. For example, if the sum of both these values is >=0 then the neuron is activated, otherwise the neuron is not. The 1 and 0 represent the true and false within the output of the logic gate.
 
 ```
-def activation(nump):
-    #activation function for the and gate
-    s=np.sum(nump.transpose()[0])
-    if s>=0:
-        return np.array([1])
-    return np.array([0])
+class my_activation:
+    def __init__(self):
+        self.type="activation"
+    def __call__(self,x):
+        return self.act(x)
+    def act(self,nump):
+        #activation function for the and gate
+        s=np.sum(nump.transpose()[0])
+        if s>=0:
+            return np.array([1])
+        return np.array([0])
 ```
 This activation function can be set into the layer. If you want to use the same activation function for all your layers you will have to specify it in each add_layer parameter.
 ```
 #create the network
-net=Network(2)
-net.add_layer(2,vals=np.array([1,0,1,0]),act=activation)
-net.add_bias(vals=np.array([-1,-1]))
-net.show()
+net=Network()
+layer=LinearLayer(2,2,bias=True)
+layer.setLayer(np.array([[1,1],[1,1]]))
+net.layers=[layer,my_activation()]
+net.compile()
 ```
 An activation function must take in a single parameter that is an output matrix from the layer it is being entered in.
 
@@ -153,39 +161,19 @@ Using the training example, you can generate inputs and outputs, and train a net
 from CPML import *
 import ulab.numpy as np
 
-#create neural network
-net=Network(2) #two outputs
-net.add_layer(2) #two inputs
-net.add_layer(5) #hidden layer of 5
-net.show()
+class myNet(Network):
+    def __init__(self,i,h,o):
+        self.layer1=LinearLayer(i,h)
+        self.out=LinearLayer(h,o)
+        self.layers=[self.layer1,sigmoid(),self.out]
+        self.compile()
 
-#set up logic gate data and expected outcome
-X_data=np.array([[0,0],[0,1],[1,0],[1,1]]) #training data
-y=np.array([[0,0],[1,1],[1,1],[0,0]]) #expected labels
+net=myNet(5,6,2)
+data=normal(size=(100,5))
+labels=normal(size=(100,2))
+print(net.forward(normal(0,0.5,(10,5))).shape)
+net.train(data,labels,100,0.1) #outputs loss over time
 
-#run training loop    
-net.train(X_data,y,1000,0.05) #train
-```
-
-The train function has parameters of your input data (n,I) and labels (n,O), where n is the number of items, I is the number of inputs and O is the number of outputs. We then have epochs, which in the example above is 1000. This is how many iterations the training loop will execute. The final parameter is the learning rate.
-
-### Genetic algorithm <a name="Genetic"></a>
-You can also train using a genetic algorithm. Backprop algorithms can be computationally challenging for such small devices.
-
-```
-network.trainGA(inputData,y_data,epochs,learning_rate,fitnessFunc=None):
-```
-
-Within examples you can find some code that trains a neural network to predict classes using a genetic algorithm. The fitness is determined by the amount of correct predictions. One example of this is the following snippet where the y data, and predicted labels are counted.
-
-```
-def fitness(y,preds): #fitness function
-    correct=0
-    p=preds.transpose()
-    for i in range(len(y)): #calculate how correct the prediction was
-        if np.argmax(p[i])==np.argmax(y[i]):
-            correct+=1
-    return correct/len(y)
 ```
 
 ## Regression models <a name="reg"></a>
