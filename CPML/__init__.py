@@ -50,7 +50,7 @@ class LinearLayer:
     def __init__(self,in_size,out_size,bias=None,mean=0,std=0.5):
         self.matrix=normal(mean,std,size=(in_size,out_size))
         self.bias=np.array([0])
-        if self.bias==True:
+        if bias==True:
             self.bias=normal(mean,std,size=(out_size,))
         self.type="layer"
     def __call__(self):
@@ -78,6 +78,18 @@ class sigmoid:
     def act(self,x):
         return self.__call__(x)
     
+"""
+ReLu activation function
+"""
+class ReLU:
+    def __init__(self):
+        self.type="activation"
+    def __call__(self,x):
+        return np.maximum(0,x)
+    def act(self,x):
+        return self.__call__(x)
+    
+#derivative of sigmoid
 def sigmoid_derivative(x):
     return x * (1 - x)
 """
@@ -92,35 +104,36 @@ class Network:
         return self.forward(x)
     def forward(self,x): #pass data through network and apply activation functions
         for i in range(len(self.layers)):
-            if self.layers[i].type=="layer":
+            if self.layers[i].type=="layer": #if layer apply layer
                 x=np.dot(x,self.layers[i]())+self.layers[i].bias.transpose()
                 self.activations[i]=x
-            elif self.layers[i].type=="activation":
+            elif self.layers[i].type=="activation": #if activation apply activation
                 x=self.layers[i].act(x)
                 self.activations[i-1]=x
         return x
-    def train(self,x,y,epochs,learning_rate):
+    def train(self,x,y,epochs,learning_rate,n_prints=10): #train the network
         for epoch in range(epochs):
             y_pred=self.forward(x) #foward pass
             error=y-y_pred
-            self.backward_propogation(x,error,learning_rate)
-            if epoch%epochs//10 == 0:
+            self.backward_propogation(x,error,learning_rate) #update weights
+            if epoch%epochs//n_prints == 0: #print progress n_print times
                 print("Epoch",epoch,"Loss:",MSE(y,y_pred))
             
     def backward_propogation(self,x,error,lr):
-        for i in range(len(self.layers) - 1, -1, -1):
+        for i in range(len(self.layers) - 1, -1, -1): #loop backwards
             if self.layers[i].type=="layer":
                 if i == len(self.layers) - 1:
                     layer_delta = error * sigmoid_derivative(self.activations[i])
                 else:
-                    layer_delta = np.dot(layer_delta, self.layers[i + 2].matrix.transpose()) * sigmoid_derivative(self.activations[i])
+                    layer_delta = np.dot(layer_delta, self.layers[i + 2].matrix.transpose()) * sigmoid_derivative(self.activations[i]) #products times derivative
                 
                 if i == 0:
                     layer_input = x.copy()
                 else:
                     layer_input = self.activations[i - 2]
                 self.layers[i].matrix += np.dot(layer_input.transpose(), layer_delta) * lr
-                self.layers[i].bias += np.sum(layer_delta, axis=0)* lr
+                if self.layers[i].bias.shape[0]==np.sum(layer_delta, axis=0).shape[0]:
+                    self.layers[i].bias += np.sum(layer_delta, axis=0)* lr
 
 """
 Regression model
@@ -177,5 +190,22 @@ class Ridge:
         X_test_bias = hstack(np.ones((X.shape[0], 1)), X)
         print(X_test_bias.shape,self.theta.reshape((self.theta.shape[0],1)).shape)
         return np.dot(X_test_bias, self.theta)
+"""
+Auto encoder neural network
+"""
     
-    
+class AutoEncoder(Network):
+    def __init__(self,input_dim,comp_dim):
+        l1=LinearLayer(input_dim,comp_dim)
+        l2=LinearLayer(comp_dim,input_dim)
+        l3=LinearLayer(input_dim,input_dim)
+        self.layers=[l1,ReLU(),l2,ReLU(),l3]
+        self.compile()
+    def train(self,x,epochs,learning_rate,n_prints=10):
+        for epoch in range(epochs):
+            y_pred=self.forward(x) #foward pass
+            error=x-y_pred
+            self.backward_propogation(x,error,learning_rate)
+            if epoch%epochs//n_prints == 0:
+                print("Epoch",epoch,"Loss:",MSE(x,y_pred))
+
