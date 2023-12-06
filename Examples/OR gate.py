@@ -1,7 +1,7 @@
 from CPML import *
 import ulab.numpy as np
 
-
+#create network
 net=Network()
 layer=LinearLayer(2,2,bias=True)
 layer.setLayer(np.array([[1,0],[1,0]]))
