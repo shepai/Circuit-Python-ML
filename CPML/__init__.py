@@ -247,7 +247,7 @@ class Ridge:
         return self.theta
     def predict(self, X):
         X_test_bias = hstack(np.ones((X.shape[0], 1)), X)
-        print(X_test_bias.shape,self.theta.reshape((self.theta.shape[0],1)).shape)
+        #print(X_test_bias.shape,self.theta.reshape((self.theta.shape[0],1)).shape)
         return np.dot(X_test_bias, self.theta)
 """
 Auto encoder neural network
@@ -267,3 +267,5 @@ class AutoEncoder(Network):
             self.backward_propagation(x,error,learning_rate)
             if epoch%n_prints == 0:
                 print("Epoch",epoch,"Loss:",MSE(x,y_pred))
+    def getEncoder(self):
+        return self.layers[0:-3]
