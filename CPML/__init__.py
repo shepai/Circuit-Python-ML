@@ -192,7 +192,7 @@ class Network:
             #assume they have connected the sd card
             with open(pathname,"w") as file:
                 file.write(str(dic))
-        def load(self,pathname):
+        def load(self,pathname): #TODO
             pass
 """
 Regression model
